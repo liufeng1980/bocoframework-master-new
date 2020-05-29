@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boco.sys.service.workflow.dao.CallflowHisDao">
+    <resultMap id="BaseResultMap" type="com.boco.framework.model.workflow.CallflowHis">
+        <id column="key_id" jdbcType="INTEGER" property="keyId" />
+        <result column="call_flow_key_id" jdbcType="INTEGER" property="callFlowKeyId" />
+        <result column="process_org_id" jdbcType="VARCHAR" property="processOrgId" />
+        <result column="process_content" jdbcType="VARCHAR" property="processContent" />
+        <result column="process_user_id" jdbcType="VARCHAR" property="processUserId" />
+        <result column="resultCode" jdbcType="INTEGER" property="resultcode" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="to_org_id" jdbcType="VARCHAR" property="toOrgId" />
+    </resultMap>
+    <sql id="Base_Column_List">
+    key_id, call_flow_key_id, process_org_id, process_content, process_user_id, resultCode,
+    create_time, to_org_id
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from t_callflow_his
+        where key_id = #{keyId,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_callflow_his
+    where key_id = #{keyId,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" keyColumn="key_id" keyProperty="keyId" parameterType="com.boco.framework.model.workflow.CallflowHis" useGeneratedKeys="true">
+    insert into t_callflow_his (call_flow_key_id, process_org_id, process_content,
+      process_user_id, resultCode, create_time,
+      to_org_id)
+    values (#{callFlowKeyId,jdbcType=INTEGER}, #{processOrgId,jdbcType=VARCHAR}, #{processContent,jdbcType=VARCHAR},
+      #{processUserId,jdbcType=VARCHAR}, #{resultcode,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP},
+      #{toOrgId,jdbcType=VARCHAR})
+  </insert>
+    <insert id="insertSelective" keyColumn="key_id" keyProperty="keyId" parameterType="com.boco.framework.model.workflow.CallflowHis" useGeneratedKeys="true">
+        insert into t_callflow_his
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="callFlowKeyId != null">
+                call_flow_key_id,
+            </if>
+            <if test="processOrgId != null">
+                process_org_id,
+            </if>
+            <if test="processContent != null">
+                process_content,
+            </if>
+            <if test="processUserId != null">
+                process_user_id,
+            </if>
+            <if test="resultcode != null">
+                resultCode,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="toOrgId != null">
+                to_org_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="callFlowKeyId != null">
+                #{callFlowKeyId,jdbcType=INTEGER},
+            </if>
+            <if test="processOrgId != null">
+                #{processOrgId,jdbcType=VARCHAR},
+            </if>
+            <if test="processContent != null">
+                #{processContent,jdbcType=VARCHAR},
+            </if>
+            <if test="processUserId != null">
+                #{processUserId,jdbcType=VARCHAR},
+            </if>
+            <if test="resultcode != null">
+                #{resultcode,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="toOrgId != null">
+                #{toOrgId,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.boco.framework.model.workflow.CallflowHis">
+        update t_callflow_his
+        <set>
+            <if test="callFlowKeyId != null">
+                call_flow_key_id = #{callFlowKeyId,jdbcType=INTEGER},
+            </if>
+            <if test="processOrgId != null">
+                process_org_id = #{processOrgId,jdbcType=VARCHAR},
+            </if>
+            <if test="processContent != null">
+                process_content = #{processContent,jdbcType=VARCHAR},
+            </if>
+            <if test="processUserId != null">
+                process_user_id = #{processUserId,jdbcType=VARCHAR},
+            </if>
+            <if test="resultcode != null">
+                resultCode = #{resultcode,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="toOrgId != null">
+                to_org_id = #{toOrgId,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where key_id = #{keyId,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.boco.framework.model.workflow.CallflowHis">
+    update t_callflow_his
+    set call_flow_key_id = #{callFlowKeyId,jdbcType=INTEGER},
+      process_org_id = #{processOrgId,jdbcType=VARCHAR},
+      process_content = #{processContent,jdbcType=VARCHAR},
+      process_user_id = #{processUserId,jdbcType=VARCHAR},
+      resultCode = #{resultcode,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      to_org_id = #{toOrgId,jdbcType=VARCHAR}
+    where key_id = #{keyId,jdbcType=INTEGER}
+  </update>
+</mapper>

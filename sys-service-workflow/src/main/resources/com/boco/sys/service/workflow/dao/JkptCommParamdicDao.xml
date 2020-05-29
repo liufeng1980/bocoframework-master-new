@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boco.sys.service.workflow.dao.JkptCommParamdicDao">
+    <resultMap id="BaseResultMap" type="com.boco.framework.model.common.JkptCommParamdic">
+        <id column="ID" jdbcType="DECIMAL" property="id"/>
+        <result column="DICNAME" jdbcType="VARCHAR" property="dicname"/>
+        <result column="DICVALUE" jdbcType="VARCHAR" property="dicvalue"/>
+        <result column="DICPARENTID" jdbcType="VARCHAR" property="dicparentid"/>
+        <result column="GROUPTYPE" jdbcType="VARCHAR" property="grouptype"/>
+        <result column="MEMO" jdbcType="VARCHAR" property="memo"/>
+        <result column="ORDEREXT" jdbcType="DECIMAL" property="orderext"/>
+        <result column="EXT" jdbcType="VARCHAR" property="ext"/>
+    </resultMap>
+
+    <select id="getParamDicList" resultMap="BaseResultMap">
+        select ID, DICNAME, DICVALUE, DICPARENTID, GROUPTYPE, MEMO, ORDEREXT, EXT
+        from JKPT_COMM_PARAMDIC t
+        where 1 = 1
+        <if test="groupType != null and groupType !=''">
+            and t.grouptype=#{groupType}
+        </if>
+        <if test="dicParentId != null and dicParentId !=''">
+            and t.dicparentid=#{dicParentId}
+        </if>
+        order by t.orderext asc
+    </select>
+
+    <select id="getParamDicListByGroupType" resultMap="BaseResultMap">
+        select ID, DICNAME, DICVALUE, DICPARENTID, GROUPTYPE, MEMO, ORDEREXT, EXT
+        from JKPT_COMM_PARAMDIC t
+        where 1 = 1
+        <if test="groupType != null and groupType !=''">
+            and t.grouptype=#{groupType}
+        </if>
+        order by t.orderext asc
+    </select>
+</mapper>

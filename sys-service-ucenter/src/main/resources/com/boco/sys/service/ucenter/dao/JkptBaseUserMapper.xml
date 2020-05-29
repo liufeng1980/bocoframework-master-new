@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boco.sys.service.ucenter.dao.JkptBaseUserMapper">
+    <select id="findUserByName" parameterType="java.lang.String"
+            resultType="com.boco.framework.model.ucenter.JkptBaseUser">
+        SELECT
+         userkeyid, usercode, username, sex, nation, contact, orgid, roleid, password, userid,
+         status, loginid, dutiesid, isadmin, creationuserid, creationtime, modifyuserid,
+         modifytime, ordering, videouserid, usericonpath,
+        (SELECT x.orgname
+        FROM JKPT_BASE_ORG x
+        WHERE x.orgid = a.orgid) orgName, (
+        SELECT x.orgtype
+        FROM JKPT_BASE_ORG x
+        WHERE x.orgid = a.orgid) orgtype
+        FROM JKPT_BASE_USER a
+        WHERE upper(loginId) = upper(#{loginId})
+    </select>
+</mapper>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boco.sys.service.ucenter.dao.JkptSysRightMapper">
+    <resultMap id="BaseResultMap" type="com.boco.framework.model.ucenter.JkptSysRight">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="funcode" jdbcType="VARCHAR" property="funcode"/>
+        <result column="funname" jdbcType="VARCHAR" property="funname"/>
+        <result column="funtypeid" jdbcType="VARCHAR" property="funtypeid"/>
+        <result column="fundesc" jdbcType="VARCHAR" property="fundesc"/>
+    </resultMap>
+
+    <select id="querySysRightsByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    r.*
+    from JKPT_SYS_RIGHT r inner Join JKPT_SYS_ROLE rl ON r.id = rl.id
+     INNER JOIN JKPT_BASE_USER u ON rl.id = u.roleid
+    WHERE UPPER(loginId) = UPPER(#{loginId})
+    </select>
+
+</mapper>

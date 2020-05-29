@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boco.sys.service.workflow.dao.CallflowDao">
+    <resultMap id="BaseResultMap" type="com.boco.framework.model.workflow.Callflow">
+        <id column="key_id" jdbcType="INTEGER" property="keyId"/>
+        <result column="current_his_id" jdbcType="INTEGER" property="currentHisId"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="org_id" jdbcType="VARCHAR" property="orgId"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    key_id, current_his_id, create_user, create_time, org_id, content
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_callflow
+        where key_id = #{keyId,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_callflow
+    where key_id = #{keyId,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" keyColumn="key_id" keyProperty="keyId" parameterType="com.boco.framework.model.workflow.Callflow"
+            useGeneratedKeys="true">
+    insert into t_callflow (current_his_id, create_user, create_time,
+      org_id, content)
+    values (#{currentHisId,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+      #{orgId,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR})
+  </insert>
+    <insert id="insertSelective" keyColumn="key_id" keyProperty="keyId" parameterType="com.boco.framework.model.workflow.Callflow"
+            useGeneratedKeys="true">
+        insert into t_callflow
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="currentHisId != null">
+                current_his_id,
+            </if>
+            <if test="createUser != null">
+                create_user,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="orgId != null">
+                org_id,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="currentHisId != null">
+                #{currentHisId,jdbcType=INTEGER},
+            </if>
+            <if test="createUser != null">
+                #{createUser,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="orgId != null">
+                #{orgId,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                #{content,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.boco.framework.model.workflow.Callflow">
+        update t_callflow
+        <set>
+            <if test="currentHisId != null">
+                current_his_id = #{currentHisId,jdbcType=INTEGER},
+            </if>
+            <if test="createUser != null">
+                create_user = #{createUser,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="orgId != null">
+                org_id = #{orgId,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where key_id = #{keyId,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.boco.framework.model.workflow.Callflow">
+    update t_callflow
+    set current_his_id = #{currentHisId,jdbcType=INTEGER},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      org_id = #{orgId,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR}
+    where key_id = #{keyId,jdbcType=INTEGER}
+  </update>
+</mapper>
