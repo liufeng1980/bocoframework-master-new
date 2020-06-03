@@ -12,6 +12,7 @@ import com.boco.framework.web.BaseController;
 import com.boco.sys.service.api.workflow.ComplaintControllerApi;
 import com.boco.sys.service.workflow.service.ComplaintService;
 import com.boco.utils.SysOauth2Util;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,13 +28,21 @@ public class ComplaintController extends BaseController implements ComplaintCont
     @PostMapping("/add_complaint")
     @Override
     public ResponseResult addComplaint(@RequestBody Complaint complaint) {
-        return ResponseResult.SUCCESS();
+        SysOauth2Util sysOauth2Util = new SysOauth2Util();
+        SysOauth2Util.UserJwt userJwt = sysOauth2Util.getUserJwtFromHeader(request);
+        ResponseResult responseResult;
+        try {
+            responseResult =complaintService.addComplaint(userJwt,complaint);
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseResult = ResponseResult.FAIL(e.getMessage());
+        }
+        return responseResult;
     }
 
     @GetMapping("/init_add_complaint_page")
     @Override
     public ResponseResult<AddFormResponse> initAddComplaintPage() {
-
         ResponseResult<AddFormResponse> result = complaintService.initAddComplaintPage();
         return result;
     }
@@ -53,7 +62,10 @@ public class ComplaintController extends BaseController implements ComplaintCont
     @PostMapping("/getPage")
     @Override
     public ResponseResult<List<Complaint>> getPage(@RequestBody ComplaintPage complaintListRequest) {
-        return null;
+        SysOauth2Util sysOauth2Util = new SysOauth2Util();
+        SysOauth2Util.UserJwt userJwt = sysOauth2Util.getUserJwtFromHeader(request);
+        PageInfo<Complaint> page = complaintService.getPage(userJwt, complaintListRequest);
+        return ResponseResult.SUCCESS(page);
     }
 
     @GetMapping("/getComplaintByPlateNumOrTel/{searchInput}")

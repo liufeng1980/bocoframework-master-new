@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boco.sys.service.workflow.dao.JkptTsglAuditdetailDao">
+   <insert id="insertSelective" parameterType="com.boco.framework.model.workflow.JkptTsglAuditdetail">
+      <selectKey resultType="java.lang.Integer" order="BEFORE" keyProperty="pkid">
+          select SEQ_TSGL_AUDITDETAIL_ID.Nextval from dual
+      </selectKey>
+      insert into JKPT_TSGL_AUDITDETAIL
+      <trim prefix="(" suffix=")" suffixOverrides=",">
+         pkid,
+         <if test="fkid != null">
+            FKID,
+         </if>
+         <if test="statusinfo != null">
+            STATUSINFO,
+         </if>
+         <if test="senduserid != null">
+            SENDUSERID,
+         </if>
+         <if test="dealtime != null">
+            DEALTIME,
+         </if>
+         <if test="passpath != null">
+            PASSPATH,
+         </if>
+         <if test="receiveuserid != null">
+            RECEIVEUSERID,
+         </if>
+         <if test="remark1 != null">
+            REMARK_1,
+         </if>
+         <if test="remark2 != null">
+            REMARK_2,
+         </if>
+         <if test="remark3 != null">
+            REMARK_3,
+         </if>
+         <if test="remark4 != null">
+            REMARK_4,
+         </if>
+         <if test="remark5 != null">
+            REMARK_5,
+         </if>
+         <if test="remark6 != null">
+            REMARK_6,
+         </if>
+         <if test="remark7 != null">
+            REMARK_7,
+         </if>
+         <if test="remark8 != null">
+            REMARK_8,
+         </if>
+         <if test="receiveorgid != null">
+            RECEIVEORGID,
+         </if>
+         <if test="status != null">
+            "STATUS",
+         </if>
+         <if test="sendorgid != null">
+            SENDORGID,
+         </if>
+         <if test="newstatus != null">
+            NEWSTATUS,
+         </if>
+         <if test="isreject != null">
+            ISREJECT,
+         </if>
+         <if test="frequency != null">
+            FREQUENCY,
+         </if>
+         <if test="isshow != null">
+            ISSHOW,
+         </if>
+         <if test="complaintid != null">
+            COMPLAINTID,
+         </if>
+         <if test="suggestion != null">
+            SUGGESTION,
+         </if>
+      </trim>
+      <trim prefix="values (" suffix=")" suffixOverrides=",">
+         #{pkid,jdbcType=INTEGER},
+         <if test="fkid != null">
+            #{fkid,jdbcType=INTEGER},
+         </if>
+         <if test="statusinfo != null">
+            #{statusinfo,jdbcType=VARCHAR},
+         </if>
+         <if test="senduserid != null">
+            #{senduserid,jdbcType=VARCHAR},
+         </if>
+         <if test="dealtime != null">
+            #{dealtime,jdbcType=TIMESTAMP},
+         </if>
+         <if test="passpath != null">
+            #{passpath,jdbcType=INTEGER},
+         </if>
+         <if test="receiveuserid != null">
+            #{receiveuserid,jdbcType=VARCHAR},
+         </if>
+         <if test="remark1 != null">
+            #{remark1,jdbcType=VARCHAR},
+         </if>
+         <if test="remark2 != null">
+            #{remark2,jdbcType=VARCHAR},
+         </if>
+         <if test="remark3 != null">
+            #{remark3,jdbcType=VARCHAR},
+         </if>
+         <if test="remark4 != null">
+            #{remark4,jdbcType=VARCHAR},
+         </if>
+         <if test="remark5 != null">
+            #{remark5,jdbcType=INTEGER},
+         </if>
+         <if test="remark6 != null">
+            #{remark6,jdbcType=INTEGER},
+         </if>
+         <if test="remark7 != null">
+            #{remark7,jdbcType=TIMESTAMP},
+         </if>
+         <if test="remark8 != null">
+            #{remark8,jdbcType=TIMESTAMP},
+         </if>
+         <if test="receiveorgid != null">
+            #{receiveorgid,jdbcType=VARCHAR},
+         </if>
+         <if test="status != null">
+            #{status,jdbcType=INTEGER},
+         </if>
+         <if test="sendorgid != null">
+            #{sendorgid,jdbcType=VARCHAR},
+         </if>
+         <if test="newstatus != null">
+            #{newstatus,jdbcType=INTEGER},
+         </if>
+         <if test="isreject != null">
+            #{isreject,jdbcType=VARCHAR},
+         </if>
+         <if test="frequency != null">
+            #{frequency,jdbcType=INTEGER},
+         </if>
+         <if test="isshow != null">
+            #{isshow,jdbcType=VARCHAR},
+         </if>
+         <if test="complaintid != null">
+            #{complaintid,jdbcType=INTEGER},
+         </if>
+         <if test="suggestion != null">
+            #{suggestion,jdbcType=CLOB},
+         </if>
+      </trim>
+   </insert>
+</mapper>

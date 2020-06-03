@@ -21,11 +21,18 @@ spring:
       minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
       driver-class-name: oracle.jdbc.driver.OracleDriver
   activiti:
+    #自动更新数据库结构
     database-schema-update: true
     history-level: full
     db-history-used: true
+    #自动检查、部署流程定义文件
+    check-process-definitions: true
 pagehelper:
-  helper-dialect: mysql
+  helper-dialect: oracle
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+  returnPageInfo: check
 eureka:
   client:
     registerWithEureka: true #服务注册开关

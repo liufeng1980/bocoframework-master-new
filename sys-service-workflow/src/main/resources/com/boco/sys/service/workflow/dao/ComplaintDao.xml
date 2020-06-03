@@ -2,16 +2,138 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.boco.sys.service.workflow.dao.ComplaintDao">
 
-    <select id="getComplaintByPlateNumOrTel" resultType="com.boco.framework.model.workflow.response.ComplaintByTelResponse">
+    <select id="getComplaintByPlateNumOrTel"
+            resultType="com.boco.framework.model.workflow.response.ComplaintByTelResponse">
 	select a.creationtime createTime,a.eventdescribe eventDesc from jkpt_tsgl_complaint a
         where (a.telephone=#{searchInput} or a.platenumber=#{searchInput})
          and a.isarchive='0' and a.isrecyclebin='0'
     </select>
 
     <select id="getReceiveOrgidList" resultType="com.boco.framework.model.workflow.response.JkptTsglOrgRelationExt">
-	select a.creationtime createTime,a.eventdescribe eventDesc from jkpt_tsgl_complaint a
-        where (a.telephone=#{searchInput} or a.platenumber=#{searchInput})
-         and a.isarchive='0' and a.isrecyclebin='0'
+	select orgid,
+       remark,
+       allotorgid,
+       (select b.orgname from jkpt_base_org b where a.allotorgid = b.orgid) allotOrgName,
+       grouptype,
+       orderext
+  from jkpt_tsgl_orgrelation a
+ where a.orgid = #{senderOrgId}
+   and a.complaintparenttype = #{complaintParentType}
+ order by a.orderext
     </select>
 
+    <!-- 添加 -->
+    <select id="addComplain" statementType="CALLABLE" parameterType="com.boco.framework.model.request.RequestData" >
+       {call PROC_tsgl_Add(
+       #{caller,mode=IN,jdbcType=VARCHAR},
+       #{telephone,mode=IN,jdbcType=VARCHAR},
+       #{plateNumber,mode=IN,jdbcType=VARCHAR},
+       #{cardType,mode=IN,jdbcType=VARCHAR},
+       #{cardNumber,mode=IN,jdbcType=VARCHAR},
+       #{tagType,mode=IN,jdbcType=VARCHAR},
+       #{tagNumber,mode=IN,jdbcType=VARCHAR},
+       #{complaintType,mode=IN,jdbcType=VARCHAR},
+       #{complaintLevel,mode=IN,jdbcType=VARCHAR},
+       #{complaintTarget,mode=IN,jdbcType=VARCHAR},
+       #{eventTime,mode=IN,jdbcType=VARCHAR},
+       #{eventPlace,mode=IN,jdbcType=VARCHAR},
+       #{isCashPayment,mode=IN,jdbcType=VARCHAR},
+       #{eventDescribe,mode=IN,jdbcType=VARCHAR},
+       #{userAppeal,mode=IN,jdbcType=VARCHAR},
+       #{creationOrgId,mode=IN,jdbcType=VARCHAR},
+       #{creationUserId,mode=IN,jdbcType=VARCHAR},
+       #{etcBillNo,mode=IN,jdbcType=VARCHAR},
+       #{etcAcceptTime,mode=IN,jdbcType=VARCHAR},
+       #{etcAcceptCount,mode=IN,jdbcType=DOUBLE},
+       #{etcAgency,mode=IN,jdbcType=VARCHAR},
+       #{etcAcceptUser,mode=IN,jdbcType=VARCHAR},
+       #{etcUserName,mode=IN,jdbcType=VARCHAR},
+       #{idType,mode=IN,jdbcType=VARCHAR},
+       #{idNo,mode=IN,jdbcType=VARCHAR},
+       #{bankName,mode=IN,jdbcType=VARCHAR},
+       #{bankAccount,mode=IN,jdbcType=VARCHAR},
+       #{etcRechargeBillNo,mode=IN,jdbcType=VARCHAR},
+       #{payType,mode=IN,jdbcType=VARCHAR},
+       #{etcEventTime,mode=IN,jdbcType=VARCHAR},
+       #{currentOrgId,mode=IN,jdbcType=VARCHAR},
+       #{attachments,mode=IN,jdbcType=VARCHAR},
+       #{pkid,mode=OUT,jdbcType=INTEGER},
+       #{pReturnVal,mode=OUT,jdbcType=VARCHAR},
+       #{pMsg,mode=OUT,jdbcType=VARCHAR})}
+    </select>
+
+   <!-- 主页查询条件1 -->
+   <sql id="getListWhere">
+      <if test="queryType==2 and searchInput !='' and searchInput != null">
+         and (a.platenumber like concat(concat('%',#{searchInput}),'%') or a.telephone like concat(concat('%',#{searchInput}),'%'))
+      </if>
+      <if test="queryType==1 and complaintCode !=''">
+         <![CDATA[
+    	and a.complaintCode=#{complaintCode}
+    ]]>
+      </if>
+      <if test="queryType==1 and complaintCode =='' and beginTime !=''">
+         <![CDATA[
+    	and a.creationtime>=to_date(#{beginTime},'yyyy-mm-dd hh24:mi:ss')
+    ]]>
+      </if>
+      <if test="queryType==1 and complaintCode =='' and endTime !=''">
+         <![CDATA[
+    	and a.creationtime<=to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss')
+    ]]>
+      </if>
+      <if test="queryType==1 and complaintCode =='' and complaintLevel !=''">
+         and a.complaintLevel=#{complaintLevel}
+      </if>
+      <if test="queryType==1 and complaintCode =='' and complaintType !=''">
+         and a.complaintType=#{complaintType}
+      </if>
+      <if test="queryType==1 and complaintCode =='' and complaintTarget !=''">
+         and a.complaintTarget=#{complaintTarget}
+      </if>
+      <choose>
+         <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==2 ">
+            and a.currentorgid = #{loginUserOrgId} and a.isarchive='0' and a.isrecyclebin='0'
+         </when>
+         <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==3 ">
+            and a.isarchive='0' and a.isrecyclebin='0'
+         </when>
+         <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==4 ">
+            and a.isarchive = '1'
+         </when>
+         <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==5 ">
+            and a.isrecyclebin = '1'
+         </when>
+         <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==6 ">
+            and a.pkid in (select flowid from jkpt_flow_reject t where t.flowtype=2
+            and t.receivedorgid in (select creationorgid from jkpt_tsgl_complaint where pkid=a.pkid))
+         </when>
+         <otherwise>
+            and 1=1
+         </otherwise>
+      </choose>
+   </sql>
+   <!-- 查询主页列表 -->
+   <select id="getList" parameterType="com.boco.framework.model.workflow.request.ComplaintPage" resultType="com.boco.framework.model.workflow.request.Complaint">
+      select a.caller,a.telephone,a.platenumber,a.cardtype,a.cardnumber,
+      a.tagtype,a.tagnumber,a.complainttype,a.complaintlevel,a.complainttarget,a.eventtime,a.eventplace,a.iscashpayment,
+      a.eventdescribe,a.userappeal,a.pkid,a.creationuserid,u.loginid,a.creationtime,a.creationorgid,a.useddays,a.isarchive,
+      a.isrecyclebin,a.archivetime,a.currentorgid,a.recyclebintime,a.complaintcode,sysdate currenttime,
+      FUN_tsgl_getstatusdescpart1(a.pkid) CurrentStepStatusInfoPart1,FUN_tsgl_getstatusdescpart2(a.pkid) CurrentStepStatusInfoPart2,
+      (select creationtime from jkpt_tsgl_auditinfo where fkid = a.pkid and iscurrent ='1') LastTimeCreationTime,
+      case when a.isarchive ='1' then (select useddays from jkpt_tsgl_auditinfo where fkid = a.pkid and iscurrent ='1') else
+      func_base_getdays((select creationtime from jkpt_tsgl_auditinfo where fkid=a.pkid and iscurrent='1'),sysdate) end SingleUsedDays,
+      (select pkid from jkpt_tsgl_auditinfo where fkid = a.pkid and iscurrent = '1') currentAuditId,
+      (select dicname from jkpt_comm_paramdic where dicvalue = a.complainttype and grouptype = 'ComplaintType') ComplaintTypeDesc,
+      (select dicname from jkpt_comm_paramdic where dicvalue = a.complaintlevel and grouptype = 'ComplaintLevel') ComplaintLevelDesc,
+      (select dicname from jkpt_comm_paramdic where dicvalue = a.iscashpayment and grouptype = 'WhetherOrNot') iscashpaymentdesc,
+      audinfo.passpath,audinfo.isreject from jkpt_tsgl_complaint a left join (select info.* from jkpt_tsgl_auditinfo info,
+      (select a.fkid, max(a.frequency) frequency from jkpt_tsgl_auditinfo a group by a.fkid) maxinfo where info.fkid = maxinfo.fkid
+      and info.frequency=maxinfo.frequency) audinfo on a.pkid=audinfo.fkid left join jkpt_base_user u on a.creationuserid=u.userid
+      where 1 = 1 and exists (select 1 from jkpt_tsgl_receiveorg where orgid = #{loginUserOrgId} and a.pkid = flowid)
+      <include refid="getListWhere"></include>
+      <if test="sortStr !=''">
+         order by ${sortStr}
+      </if>
+   </select>
 </mapper>

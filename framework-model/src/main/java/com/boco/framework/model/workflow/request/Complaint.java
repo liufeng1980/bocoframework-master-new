@@ -324,7 +324,7 @@ public class Complaint implements Serializable {
      */
 
     //TODO
-   // private List<Attachment> attachmentList;
+    //private List<Attachment> attachmentList;
     // 扩展字段 end
 
     // 备用字段 begin

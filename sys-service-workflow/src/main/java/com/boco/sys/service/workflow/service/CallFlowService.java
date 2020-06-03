@@ -78,6 +78,7 @@ public class CallFlowService {
             LOGGER.info("流程实例ID:{}", processInstance.getId());
             String instanceId = processInstance.getProcessInstanceId();
             Task task = queryTaskByInstanceId(instanceId);
+
             if (task != null) {
                 taskService.complete(task.getId());
                 printTask(task);
