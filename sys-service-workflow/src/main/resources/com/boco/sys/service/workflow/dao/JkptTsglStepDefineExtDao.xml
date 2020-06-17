@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boco.sys.service.workflow.dao.JkptTsglStepDefineExtDao">
+   <select id="query" resultType="com.boco.framework.model.workflow.JkptTsglStepDefine">
+        SELECT SENDER,
+           SUCCESSRECEIVER,
+           SUCCESSSTATUS,
+           STEP,
+           SUCCESSDESCRIBE,
+           REJECTDESCRIBE,
+           PASSPATH,
+           REJECTRECEIVER,
+           REJECTSTATUS,
+           DEALSUCESSDESCRIBE,
+           REMARK_1,
+           REMARK_2,
+           REMARK_3,
+           REMARK_4,
+           REMARK_5,
+           REMARK_6,
+           REMARK_7,
+           REMARK_8,
+           DEALREJECTDESCRIBE,
+           COMPLAINTPARENTTYPE
+      FROM JKPT_TSGL_STEPDEFINE T
+     WHERE T.SENDER = #{sender,jdbcType=VARCHAR}
+       AND T.SUCCESSRECEIVER = #{receiver,jdbcType=VARCHAR}
+       AND T.COMPLAINTPARENTTYPE = #{complaintParentType,jdbcType=VARCHAR}
+       AND ROWNUM = 1
+   </select>
+</mapper>

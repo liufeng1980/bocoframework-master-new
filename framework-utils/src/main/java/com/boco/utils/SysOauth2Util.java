@@ -23,6 +23,7 @@ public class SysOauth2Util {
         userJwt.setOrgName(jwtClaims.get("orgName").toString());
         userJwt.setOrgType(Integer.parseInt(jwtClaims.get("orgType").toString()));
         userJwt.setOrgid(jwtClaims.get("orgid").toString());
+        userJwt.setUserId(jwtClaims.get("userid").toString());
 
         return userJwt;
     }
@@ -74,5 +75,10 @@ public class SysOauth2Util {
          * 所属机构：关联机构表(JKPT_BASE_ORG)
          */
         private String orgid;
+
+        /**
+         * userId
+         */
+        private String userId;
     }
 }

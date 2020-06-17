@@ -5,8 +5,11 @@ import com.boco.framework.model.workflow.JkptTsglOrgrelation;
 import com.boco.framework.model.workflow.UploadDocumentItem;
 import com.boco.framework.model.workflow.request.Complaint;
 import com.boco.framework.model.workflow.request.ComplaintPage;
+import com.boco.framework.model.workflow.request.DetailFormRequest;
+import com.boco.framework.model.workflow.request.ProcessDetailRequest;
 import com.boco.framework.model.workflow.response.AddFormResponse;
 import com.boco.framework.model.workflow.response.ComplaintByTelResponse;
+import com.boco.framework.model.workflow.response.DetailFormResponse;
 import com.boco.framework.model.workflow.response.JkptTsglOrgRelationExt;
 import com.boco.framework.web.BaseController;
 import com.boco.sys.service.api.workflow.ComplaintControllerApi;
@@ -53,15 +56,9 @@ public class ComplaintController extends BaseController implements ComplaintCont
         return null;
     }
 
-    @PostMapping("/initDetailPage")
-    @Override
-    public ResponseResult initDetailPage(ComplaintPage complaintPage) {
-        return null;
-    }
-
     @PostMapping("/getPage")
     @Override
-    public ResponseResult<List<Complaint>> getPage(@RequestBody ComplaintPage complaintListRequest) {
+    public ResponseResult<PageInfo<Complaint>> getPage(@RequestBody ComplaintPage complaintListRequest) {
         SysOauth2Util sysOauth2Util = new SysOauth2Util();
         SysOauth2Util.UserJwt userJwt = sysOauth2Util.getUserJwtFromHeader(request);
         PageInfo<Complaint> page = complaintService.getPage(userJwt, complaintListRequest);
@@ -85,5 +82,40 @@ public class ComplaintController extends BaseController implements ComplaintCont
         return receiveOrgidList;
     }
 
+    @PostMapping("/initDetailPage")
+    @Override
+    public ResponseResult<DetailFormResponse> initDetailPage(@RequestBody DetailFormRequest detailFormRequest){
+        SysOauth2Util sysOauth2Util = new SysOauth2Util();
+        SysOauth2Util.UserJwt userJwt = sysOauth2Util.getUserJwtFromHeader(request);
+        ResponseResult<DetailFormResponse> result = complaintService.initDetailPage(userJwt, detailFormRequest);
+        return result;
+    }
+
+    @GetMapping("/test/{key}")
+    @Override
+    public ResponseResult test(@PathVariable("key") String key) {
+        complaintService.test(key);
+        return null;
+    }
+
+    @PostMapping("/audit")
+    @Override
+    public ResponseResult audit(ProcessDetailRequest processDetailRequest) {
+        SysOauth2Util sysOauth2Util = new SysOauth2Util();
+        SysOauth2Util.UserJwt userJwt = sysOauth2Util.getUserJwtFromHeader(request);
+
+        ResponseResult result = complaintService.audit(userJwt,processDetailRequest);
+        return result;
+    }
+
+    @GetMapping("/deployTest")
+    public ResponseResult deployTest(){
+        return complaintService.deployTest();
+    }
+
+    @GetMapping("/deployComplaint")
+    public ResponseResult deployComplaint(){
+        return complaintService.deployComplaint();
+    }
 
 }

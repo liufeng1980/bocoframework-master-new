@@ -65,6 +65,13 @@ public class UserJwt extends User {
      */
     private String orgid;
 
+    /**
+     * userid
+     */
+    //private String userId;
+
+    private String userid;
+
     public UserJwt(String username, String password, Collection<? extends GrantedAuthority> authorities) {
         super(username, password, authorities);
     }

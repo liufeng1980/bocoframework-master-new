@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.boco.sys.service.workflow.dao.JkptTsglAuditinfoExtDao">
+   <select id="queryComplaintAuditInfo" resultType="com.boco.framework.model.workflow.response.JkptTsglAuditInfoResponse">
+      select     FKID, FREQUENCY, CURRENTSTATUS, CURRENTSUGGESTION, ISARCHIVE, ISCURRENT, DEALRESULT,
+    REMARK_1, REMARK_2, REMARK_3, REMARK_4, REMARK_5, REMARK_6, REMARK_7, REMARK_8, ISRECYCLEBIN,
+    SENDORGID, PKID, ISREJECT, a.CREATIONTIME, USEDDAYS, ARCHIVETIME, RECYCLEBINTIME, RECEIVEORGID,
+    PASSPATH, SENDUSERID, CURRENTSTATUSDESC,
+    (select b.orgname from jkpt_base_org b where a.sendorgid=b.orgid) sendorgname,
+    (select b.orgname from jkpt_base_org b where a.receiveorgid=b.orgid) receiveorgname
+    from JKPT_TSGL_AUDITINFO a
+    left join jkpt_base_user u on a.senduserid=u.userid where a.pkid=#{auditInfoId,jdbcType=INTEGER}
+   </select>
+</mapper>

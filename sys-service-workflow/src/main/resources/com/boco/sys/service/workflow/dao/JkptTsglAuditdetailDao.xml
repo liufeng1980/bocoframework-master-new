@@ -151,4 +151,85 @@
          </if>
       </trim>
    </insert>
+
+   <update id="updateByPrimaryKeySelective" parameterType="com.boco.framework.model.workflow.JkptTsglAuditdetail">
+      update JKPT_TSGL_AUDITDETAIL
+      <set>
+         <if test="fkid != null">
+            FKID = #{fkid,jdbcType=INTEGER},
+         </if>
+         <if test="statusinfo != null">
+            STATUSINFO = #{statusinfo,jdbcType=VARCHAR},
+         </if>
+         <if test="senduserid != null">
+            SENDUSERID = #{senduserid,jdbcType=VARCHAR},
+         </if>
+
+         <if test="passpath != null">
+            PASSPATH = #{passpath,jdbcType=INTEGER},
+         </if>
+         <if test="receiveuserid != null">
+            RECEIVEUSERID = #{receiveuserid,jdbcType=VARCHAR},
+         </if>
+         <if test="remark1 != null">
+            REMARK_1 = #{remark1,jdbcType=VARCHAR},
+         </if>
+         <if test="remark2 != null">
+            REMARK_2 = #{remark2,jdbcType=VARCHAR},
+         </if>
+         <if test="remark3 != null">
+            REMARK_3 = #{remark3,jdbcType=VARCHAR},
+         </if>
+         <if test="remark4 != null">
+            REMARK_4 = #{remark4,jdbcType=VARCHAR},
+         </if>
+         <if test="remark5 != null">
+            REMARK_5 = #{remark5,jdbcType=INTEGER},
+         </if>
+         <if test="remark6 != null">
+            REMARK_6 = #{remark6,jdbcType=INTEGER},
+         </if>
+         <if test="remark7 != null">
+            REMARK_7 = #{remark7,jdbcType=TIMESTAMP},
+         </if>
+         <if test="remark8 != null">
+            REMARK_8 = #{remark8,jdbcType=TIMESTAMP},
+         </if>
+         <if test="receiveorgid != null">
+            RECEIVEORGID = #{receiveorgid,jdbcType=VARCHAR},
+         </if>
+         <if test="status != null">
+            "STATUS" = #{status,jdbcType=INTEGER},
+         </if>
+         <if test="sendorgid != null">
+            SENDORGID = #{sendorgid,jdbcType=VARCHAR},
+         </if>
+         <if test="newstatus != null">
+            NEWSTATUS = #{newstatus,jdbcType=INTEGER},
+         </if>
+         <if test="isreject != null">
+            ISREJECT = #{isreject,jdbcType=VARCHAR},
+         </if>
+         <if test="frequency != null">
+            FREQUENCY = #{frequency,jdbcType=INTEGER},
+         </if>
+         <if test="isshow != null">
+            ISSHOW = #{isshow,jdbcType=VARCHAR},
+         </if>
+         <if test="complaintid != null">
+            COMPLAINTID = #{complaintid,jdbcType=INTEGER},
+         </if>
+         <if test="suggestion != null">
+            SUGGESTION = #{suggestion,jdbcType=CLOB},
+         </if>
+         DEALTIME = SYSDATE
+      </set>
+      where PKID = #{pkid,jdbcType=INTEGER}
+   </update>
+
+    <select id="queryMaxPkId" resultType="java.lang.Integer">
+  SELECT MAX(A.PKID)
+    FROM JKPT_TSGL_AUDITDETAIL A
+   WHERE A.COMPLAINTID =#{complaintId,jdbcType=INTEGER}
+    </select>
 </mapper>

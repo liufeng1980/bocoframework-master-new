@@ -10,11 +10,13 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.client.RestTemplate;
 
 @EnableFeignClients //开始feignClient
 @EnableDiscoveryClient
 @SpringBootApplication
+@EnableTransactionManagement
 @MapperScan(basePackages = "com.boco.sys.service.workflow.dao")
 @ComponentScan(basePackages = "com.boco.sys.service.api")
 @ComponentScan(basePackages = "com.boco.sys.service.workflow")

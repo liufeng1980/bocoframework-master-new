@@ -42,6 +42,7 @@ public class CustomUserAuthenticationConverter extends DefaultUserAuthentication
         response.put("orgName",userJwt.getOrgName());
         response.put("orgType",userJwt.getOrgType());
         response.put("orgid",userJwt.getOrgid());
+        response.put("userid",userJwt.getUserid());
 
 
 //        response.put("name", userJwt.getName());

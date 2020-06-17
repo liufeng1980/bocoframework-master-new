@@ -22,8 +22,18 @@ public class WorkFlowService {
         Task task = taskService.createTaskQuery().processInstanceId(instanceId).singleResult();
         if (task == null) {
             LOGGER.info("未查询到实例ID:   {}的任务", instanceId);
-            return task;
+            return null;
         }
+        return task;
+    }
+
+    /**
+     * 根据BusinessKey查询Task
+     * @param businessKey
+     * @return
+     */
+    public Task queryTaskByBusinessKey(String businessKey){
+        Task task = taskService.createTaskQuery().processInstanceBusinessKey(businessKey).singleResult();
         return task;
     }
 }

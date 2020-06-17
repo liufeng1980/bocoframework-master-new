@@ -23,7 +23,7 @@
     </select>
 
     <!-- 添加 -->
-    <select id="addComplain" statementType="CALLABLE" parameterType="com.boco.framework.model.request.RequestData" >
+    <select id="addComplain" statementType="CALLABLE" parameterType="com.boco.framework.model.request.RequestData">
        {call PROC_tsgl_Add(
        #{caller,mode=IN,jdbcType=VARCHAR},
        #{telephone,mode=IN,jdbcType=VARCHAR},
@@ -62,78 +62,199 @@
        #{pMsg,mode=OUT,jdbcType=VARCHAR})}
     </select>
 
-   <!-- 主页查询条件1 -->
-   <sql id="getListWhere">
-      <if test="queryType==2 and searchInput !='' and searchInput != null">
-         and (a.platenumber like concat(concat('%',#{searchInput}),'%') or a.telephone like concat(concat('%',#{searchInput}),'%'))
-      </if>
-      <if test="queryType==1 and complaintCode !=''">
-         <![CDATA[
+    <!-- 主页查询条件1 -->
+    <sql id="getListWhere">
+        <if test="queryType==2 and searchInput !='' and searchInput != null">
+            and (a.platenumber like concat(concat('%',#{searchInput}),'%') or a.telephone like
+            concat(concat('%',#{searchInput}),'%'))
+        </if>
+        <if test="queryType==1 and complaintCode !=''">
+            <![CDATA[
     	and a.complaintCode=#{complaintCode}
     ]]>
-      </if>
-      <if test="queryType==1 and complaintCode =='' and beginTime !=''">
-         <![CDATA[
+        </if>
+        <if test="queryType==1 and complaintCode =='' and beginTime !=''">
+            <![CDATA[
     	and a.creationtime>=to_date(#{beginTime},'yyyy-mm-dd hh24:mi:ss')
     ]]>
-      </if>
-      <if test="queryType==1 and complaintCode =='' and endTime !=''">
-         <![CDATA[
+        </if>
+        <if test="queryType==1 and complaintCode =='' and endTime !=''">
+            <![CDATA[
     	and a.creationtime<=to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss')
     ]]>
-      </if>
-      <if test="queryType==1 and complaintCode =='' and complaintLevel !=''">
-         and a.complaintLevel=#{complaintLevel}
-      </if>
-      <if test="queryType==1 and complaintCode =='' and complaintType !=''">
-         and a.complaintType=#{complaintType}
-      </if>
-      <if test="queryType==1 and complaintCode =='' and complaintTarget !=''">
-         and a.complaintTarget=#{complaintTarget}
-      </if>
-      <choose>
-         <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==2 ">
-            and a.currentorgid = #{loginUserOrgId} and a.isarchive='0' and a.isrecyclebin='0'
-         </when>
-         <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==3 ">
-            and a.isarchive='0' and a.isrecyclebin='0'
-         </when>
-         <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==4 ">
-            and a.isarchive = '1'
-         </when>
-         <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==5 ">
-            and a.isrecyclebin = '1'
-         </when>
-         <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==6 ">
-            and a.pkid in (select flowid from jkpt_flow_reject t where t.flowtype=2
-            and t.receivedorgid in (select creationorgid from jkpt_tsgl_complaint where pkid=a.pkid))
-         </when>
-         <otherwise>
-            and 1=1
-         </otherwise>
-      </choose>
-   </sql>
-   <!-- 查询主页列表 -->
-   <select id="getList" parameterType="com.boco.framework.model.workflow.request.ComplaintPage" resultType="com.boco.framework.model.workflow.request.Complaint">
-      select a.caller,a.telephone,a.platenumber,a.cardtype,a.cardnumber,
-      a.tagtype,a.tagnumber,a.complainttype,a.complaintlevel,a.complainttarget,a.eventtime,a.eventplace,a.iscashpayment,
-      a.eventdescribe,a.userappeal,a.pkid,a.creationuserid,u.loginid,a.creationtime,a.creationorgid,a.useddays,a.isarchive,
-      a.isrecyclebin,a.archivetime,a.currentorgid,a.recyclebintime,a.complaintcode,sysdate currenttime,
-      FUN_tsgl_getstatusdescpart1(a.pkid) CurrentStepStatusInfoPart1,FUN_tsgl_getstatusdescpart2(a.pkid) CurrentStepStatusInfoPart2,
-      (select creationtime from jkpt_tsgl_auditinfo where fkid = a.pkid and iscurrent ='1') LastTimeCreationTime,
-      case when a.isarchive ='1' then (select useddays from jkpt_tsgl_auditinfo where fkid = a.pkid and iscurrent ='1') else
-      func_base_getdays((select creationtime from jkpt_tsgl_auditinfo where fkid=a.pkid and iscurrent='1'),sysdate) end SingleUsedDays,
-      (select pkid from jkpt_tsgl_auditinfo where fkid = a.pkid and iscurrent = '1') currentAuditId,
-      (select dicname from jkpt_comm_paramdic where dicvalue = a.complainttype and grouptype = 'ComplaintType') ComplaintTypeDesc,
-      (select dicname from jkpt_comm_paramdic where dicvalue = a.complaintlevel and grouptype = 'ComplaintLevel') ComplaintLevelDesc,
-      (select dicname from jkpt_comm_paramdic where dicvalue = a.iscashpayment and grouptype = 'WhetherOrNot') iscashpaymentdesc,
-      audinfo.passpath,audinfo.isreject from jkpt_tsgl_complaint a left join (select info.* from jkpt_tsgl_auditinfo info,
-      (select a.fkid, max(a.frequency) frequency from jkpt_tsgl_auditinfo a group by a.fkid) maxinfo where info.fkid = maxinfo.fkid
-      and info.frequency=maxinfo.frequency) audinfo on a.pkid=audinfo.fkid left join jkpt_base_user u on a.creationuserid=u.userid
-      where 1 = 1 and exists (select 1 from jkpt_tsgl_receiveorg where orgid = #{loginUserOrgId} and a.pkid = flowid)
-      <include refid="getListWhere"></include>
-      <if test="sortStr !=''">
-         order by ${sortStr}
-      </if>
+        </if>
+        <if test="queryType==1 and complaintCode =='' and complaintLevel !=''">
+            and a.complaintLevel=#{complaintLevel}
+        </if>
+        <if test="queryType==1 and complaintCode =='' and complaintType !=''">
+            and a.complaintType=#{complaintType}
+        </if>
+        <if test="queryType==1 and complaintCode =='' and complaintTarget !=''">
+            and a.complaintTarget=#{complaintTarget}
+        </if>
+        <choose>
+            <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==2 ">
+                and a.currentorgid = #{loginUserOrgId} and a.isarchive='0' and a.isrecyclebin='0'
+            </when>
+            <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==3 ">
+                and a.isarchive='0' and a.isrecyclebin='0'
+            </when>
+            <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==4 ">
+                and a.isarchive = '1'
+            </when>
+            <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==5 ">
+                and a.isrecyclebin = '1'
+            </when>
+            <when test="(queryType==0 or (queryType==1 and complaintCode =='')) and dayCount==6 ">
+                and a.pkid in (select flowid from jkpt_flow_reject t where t.flowtype=2
+                and t.receivedorgid in (select creationorgid from jkpt_tsgl_complaint where pkid=a.pkid))
+            </when>
+            <otherwise>
+                and 1=1
+            </otherwise>
+        </choose>
+    </sql>
+    <!-- 查询主页列表 -->
+    <select id="getList" parameterType="com.boco.framework.model.workflow.request.ComplaintPage"
+            resultType="com.boco.framework.model.workflow.request.Complaint">
+        select a.caller,a.telephone,a.platenumber,a.cardtype,a.cardnumber,
+        a.tagtype,a.tagnumber,a.complainttype,a.complaintlevel,a.complainttarget,a.eventtime,a.eventplace,a.iscashpayment,
+        a.eventdescribe,a.userappeal,a.pkid,a.creationuserid,u.loginid,a.creationtime,a.creationorgid,a.useddays,a.isarchive,
+        a.isrecyclebin,a.archivetime,a.currentorgid,a.recyclebintime,a.complaintcode,sysdate currenttime,
+        FUN_tsgl_getstatusdescpart1(a.pkid) CurrentStepStatusInfoPart1,FUN_tsgl_getstatusdescpart2(a.pkid)
+        CurrentStepStatusInfoPart2,
+        (select creationtime from jkpt_tsgl_auditinfo where fkid = a.pkid and iscurrent ='1') LastTimeCreationTime,
+        case when a.isarchive ='1' then (select useddays from jkpt_tsgl_auditinfo where fkid = a.pkid and iscurrent
+        ='1') else
+        func_base_getdays((select creationtime from jkpt_tsgl_auditinfo where fkid=a.pkid and iscurrent='1'),sysdate)
+        end SingleUsedDays,
+        (select pkid from jkpt_tsgl_auditinfo where fkid = a.pkid and iscurrent = '1') currentAuditId,
+        (select dicname from jkpt_comm_paramdic where dicvalue = a.complainttype and grouptype = 'ComplaintType')
+        ComplaintTypeDesc,
+        (select dicname from jkpt_comm_paramdic where dicvalue = a.complaintlevel and grouptype = 'ComplaintLevel')
+        ComplaintLevelDesc,
+        (select dicname from jkpt_comm_paramdic where dicvalue = a.iscashpayment and grouptype = 'WhetherOrNot')
+        iscashpaymentdesc,
+        audinfo.passpath,audinfo.isreject from jkpt_tsgl_complaint a left join (select info.* from jkpt_tsgl_auditinfo
+        info,
+        (select a.fkid, max(a.frequency) frequency from jkpt_tsgl_auditinfo a group by a.fkid) maxinfo where info.fkid =
+        maxinfo.fkid
+        and info.frequency=maxinfo.frequency) audinfo on a.pkid=audinfo.fkid left join jkpt_base_user u on
+        a.creationuserid=u.userid
+        where 1 = 1 and exists (select 1 from jkpt_tsgl_receiveorg where orgid = #{loginUserOrgId} and a.pkid = flowid)
+        <include refid="getListWhere"></include>
+        <if test="sortStr !=''">
+            order by ${sortStr}
+        </if>
+    </select>
+
+    <!-- 获取基础表详细信息 -->
+    <select id="getComplaintByComplaintId" resultType="com.boco.framework.model.workflow.request.Complaint">
+	select caller,
+       telephone,
+       platenumber,
+       cardtype,
+       cardnumber,
+       tagtype,
+       tagnumber,
+       complainttype,
+       EtcBillNo,
+       parenttype,
+       EtcAcceptTime,
+       EtcAcceptCount,
+       EtcAgency,
+       EtcAcceptUser,
+       EtcUserName,
+       IdType,
+       IdNo,
+       BankName,
+       BankAccount,
+       EtcRechargeBillNo,
+       etcEventTime,
+       PayType,
+       (select b.dicname
+          from jkpt_comm_paramdic b
+         where a.complainttype = b.dicvalue
+           and b.grouptype = 'ComplaintType') complaintTypedesc,
+       complaintlevel,
+       (select b.dicname
+          from jkpt_comm_paramdic b
+         where a.complaintlevel = b.dicvalue
+           and b.grouptype = 'ComplaintLevel') complaintleveldesc,
+       complainttarget,
+       to_char(eventtime, 'yyyy-mm-dd hh24:mi') eventtime,
+       eventplace,
+       iscashpayment,
+       (select b.dicname
+          from jkpt_comm_paramdic b
+         where a.iscashpayment = b.dicvalue
+           and b.grouptype = 'WhetherOrNot') iscashpaymentdesc,
+       eventdescribe,
+       userappeal,
+       pkid,
+       creationuserid,
+       creationtime,
+       remark_1,
+       remark_2,
+       remark_3,
+       remark_4,
+       remark_5,
+       remark_6,
+       remark_7,
+       remark_8,
+       (select x.loginid
+          from jkpt_base_user x
+         where a.creationuserid = x.userid) sendUserLoginId,
+       (select x.pkid
+          from jkpt_tsgl_auditinfo x
+         where a.pkid = x.fkid
+           and x.iscurrent = '1') currentAuditId,
+       creationorgid,
+       complaintcode,
+       currentorgid,
+       (select b.dicname
+          from jkpt_comm_paramdic b
+         where a.etcagency = b.dicvalue
+           and b.grouptype = 'EtcAgency') EtcAgencyDesc,
+       (select b.dicname
+          from jkpt_comm_paramdic b
+         where a.idtype = b.dicvalue
+           and b.grouptype = 'IdType') IdTypeDesc,
+       (select b.dicname
+          from jkpt_comm_paramdic b
+         where a.paytype = b.dicvalue
+           and b.grouptype = 'ComplaintPayType') PayTypeDesc
+  from jkpt_tsgl_complaint a
+ where a.pkid=#{complaintId}
+	</select>
+
+    <select id="getGroupType" resultType="java.lang.String">
+	select grouptype
+  from JKPT_TSGL_ORGRELATION t
+ where t.complaintparenttype = #{parentType}
+   and t.orgid = #{orgId}
+   and rownum = 1
    </select>
+
+    <!-- 时间轴 -->
+    <select id="queryComplaintProcessHisById" parameterType="java.lang.Integer" resultType="com.boco.framework.model.workflow.ComplaintProcessInfo">
+	select t.statusinfo,t.dealtime,t.receiveorgid,u.loginid receiveLoginId,t.receiveuserid,o.orgname,t.suggestion,t.fkid,t.pkid
+  	from jkpt_tsgl_auditdetail t left join jkpt_base_org o on t.receiveorgid = o.orgid left join jkpt_base_user u
+    on t.receiveuserid = u.userid where t.complaintid =#{complaintId} order by t.pkid
+   	</select>
+
+    <select id="getOrgId" resultType="java.lang.String">
+	select orgid
+  from JKPT_TSGL_ORGRELATION t
+ where t.complaintparenttype = #{parentType,jdbcType=VARCHAR}
+   and t.grouptype = #{orgId,jdbcType=VARCHAR}
+   and rownum = 1
+   </select>
+
+
+    <update id="updateCurrentOrgId">
+        UPDATE JKPT_TSGL_COMPLAINT A
+        SET A.CURRENTORGID = #{receiverOrgId,jdbcType=VARCHAR}
+        WHERE A.PKID = #{complaintId,jdbcType=INTEGER}
+    </update>
 </mapper>

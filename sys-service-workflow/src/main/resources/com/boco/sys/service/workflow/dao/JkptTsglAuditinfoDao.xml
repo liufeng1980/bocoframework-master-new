@@ -170,4 +170,125 @@
          </if>
       </trim>
    </insert>
+
+   <resultMap id="BaseResultMap" type="com.boco.framework.model.workflow.JkptTsglAuditinfo">
+      <id column="FKID" jdbcType="INTEGER" property="fkid" />
+      <id column="FREQUENCY" jdbcType="INTEGER" property="frequency" />
+      <result column="CURRENTSTATUS" jdbcType="INTEGER" property="currentstatus" />
+      <result column="CURRENTSUGGESTION" jdbcType="VARCHAR" property="currentsuggestion" />
+      <result column="ISARCHIVE" jdbcType="VARCHAR" property="isarchive" />
+      <result column="ISCURRENT" jdbcType="VARCHAR" property="iscurrent" />
+      <result column="DEALRESULT" jdbcType="VARCHAR" property="dealresult" />
+      <result column="REMARK_1" jdbcType="VARCHAR" property="remark1" />
+      <result column="REMARK_2" jdbcType="VARCHAR" property="remark2" />
+      <result column="REMARK_3" jdbcType="VARCHAR" property="remark3" />
+      <result column="REMARK_4" jdbcType="VARCHAR" property="remark4" />
+      <result column="REMARK_5" jdbcType="INTEGER" property="remark5" />
+      <result column="REMARK_6" jdbcType="INTEGER" property="remark6" />
+      <result column="REMARK_7" jdbcType="TIMESTAMP" property="remark7" />
+      <result column="REMARK_8" jdbcType="TIMESTAMP" property="remark8" />
+      <result column="ISRECYCLEBIN" jdbcType="VARCHAR" property="isrecyclebin" />
+      <result column="SENDORGID" jdbcType="VARCHAR" property="sendorgid" />
+      <result column="PKID" jdbcType="INTEGER" property="pkid" />
+      <result column="ISREJECT" jdbcType="VARCHAR" property="isreject" />
+      <result column="CREATIONTIME" jdbcType="TIMESTAMP" property="creationtime" />
+      <result column="USEDDAYS" jdbcType="INTEGER" property="useddays" />
+      <result column="ARCHIVETIME" jdbcType="TIMESTAMP" property="archivetime" />
+      <result column="RECYCLEBINTIME" jdbcType="TIMESTAMP" property="recyclebintime" />
+      <result column="RECEIVEORGID" jdbcType="VARCHAR" property="receiveorgid" />
+      <result column="PASSPATH" jdbcType="INTEGER" property="passpath" />
+      <result column="SENDUSERID" jdbcType="VARCHAR" property="senduserid" />
+      <result column="CURRENTSTATUSDESC" jdbcType="VARCHAR" property="currentstatusdesc" />
+   </resultMap>
+   <sql id="Base_Column_List">
+    FKID, FREQUENCY, CURRENTSTATUS, CURRENTSUGGESTION, ISARCHIVE, ISCURRENT, DEALRESULT,
+    REMARK_1, REMARK_2, REMARK_3, REMARK_4, REMARK_5, REMARK_6, REMARK_7, REMARK_8, ISRECYCLEBIN,
+    SENDORGID, PKID, ISREJECT, CREATIONTIME, USEDDAYS, ARCHIVETIME, RECYCLEBINTIME, RECEIVEORGID,
+    PASSPATH, SENDUSERID, CURRENTSTATUSDESC
+  </sql>
+   <select id="selectByPrimaryKey"  resultMap="BaseResultMap">
+      select
+      <include refid="Base_Column_List" />
+      from JKPT_TSGL_AUDITINFO
+      where PKID = #{pkid,jdbcType=INTEGER}
+   </select>
+
+   <update id="updateByPrimaryKeySelective" parameterType="com.boco.framework.model.workflow.JkptTsglAuditinfo">
+      update JKPT_TSGL_AUDITINFO
+      <set>
+         <if test="currentstatus != null">
+            CURRENTSTATUS = #{currentstatus,jdbcType=INTEGER},
+         </if>
+         <if test="currentsuggestion != null">
+            CURRENTSUGGESTION = #{currentsuggestion,jdbcType=VARCHAR},
+         </if>
+         <if test="isarchive != null">
+            ISARCHIVE = #{isarchive,jdbcType=VARCHAR},
+         </if>
+         <if test="iscurrent != null">
+            ISCURRENT = #{iscurrent,jdbcType=VARCHAR},
+         </if>
+         <if test="dealresult != null">
+            DEALRESULT = #{dealresult,jdbcType=VARCHAR},
+         </if>
+         <if test="remark1 != null">
+            REMARK_1 = #{remark1,jdbcType=VARCHAR},
+         </if>
+         <if test="remark2 != null">
+            REMARK_2 = #{remark2,jdbcType=VARCHAR},
+         </if>
+         <if test="remark3 != null">
+            REMARK_3 = #{remark3,jdbcType=VARCHAR},
+         </if>
+         <if test="remark4 != null">
+            REMARK_4 = #{remark4,jdbcType=VARCHAR},
+         </if>
+         <if test="remark5 != null">
+            REMARK_5 = #{remark5,jdbcType=INTEGER},
+         </if>
+         <if test="remark6 != null">
+            REMARK_6 = #{remark6,jdbcType=INTEGER},
+         </if>
+         <if test="remark7 != null">
+            REMARK_7 = #{remark7,jdbcType=TIMESTAMP},
+         </if>
+         <if test="remark8 != null">
+            REMARK_8 = #{remark8,jdbcType=TIMESTAMP},
+         </if>
+         <if test="isrecyclebin != null">
+            ISRECYCLEBIN = #{isrecyclebin,jdbcType=VARCHAR},
+         </if>
+         <if test="sendorgid != null">
+            SENDORGID = #{sendorgid,jdbcType=VARCHAR},
+         </if>
+         <if test="isreject != null">
+            ISREJECT = #{isreject,jdbcType=VARCHAR},
+         </if>
+         <if test="creationtime != null">
+            CREATIONTIME = #{creationtime,jdbcType=TIMESTAMP},
+         </if>
+         <if test="useddays != null">
+            USEDDAYS = #{useddays,jdbcType=INTEGER},
+         </if>
+         <if test="archivetime != null">
+            ARCHIVETIME = #{archivetime,jdbcType=TIMESTAMP},
+         </if>
+         <if test="recyclebintime != null">
+            RECYCLEBINTIME = #{recyclebintime,jdbcType=TIMESTAMP},
+         </if>
+         <if test="receiveorgid != null">
+            RECEIVEORGID = #{receiveorgid,jdbcType=VARCHAR},
+         </if>
+         <if test="passpath != null">
+            PASSPATH = #{passpath,jdbcType=INTEGER},
+         </if>
+         <if test="senduserid != null">
+            SENDUSERID = #{senduserid,jdbcType=VARCHAR},
+         </if>
+         <if test="currentstatusdesc != null">
+            CURRENTSTATUSDESC = #{currentstatusdesc,jdbcType=VARCHAR},
+         </if>
+      </set>
+      where PKID = #{pkid,jdbcType=INTEGER}
+   </update>
 </mapper>
