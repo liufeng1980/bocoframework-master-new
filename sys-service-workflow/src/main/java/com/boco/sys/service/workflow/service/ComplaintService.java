@@ -19,6 +19,7 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.Task;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.cms.DefaultSignedAttributeTableGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -69,6 +70,9 @@ public class ComplaintService {
 
     @Autowired
     JkptTsglReceiveOrgDao receiveOrgDao;
+
+    @Autowired
+    JkptTsglAuditdetailDao auditdetailDao;
 
     private static final String PROCESS_NAME = "complaint_process";
 
@@ -451,20 +455,16 @@ public class ComplaintService {
         String formKey = task.getFormKey();
         String sourceOrg = queryValueFromFormKey(formKey, "sourceOrg");
         Map<String,Object> map = new HashMap<>();
-        //map.put("receiveOrgId",processDetailRequest.getReceiveOrgId());
-
         if(processDetailRequest.getSubmitType() == 1){
             map.put("sourceOrg",sourceOrg);
-            //map.put("pass",1);
             taskService.setVariable(task.getId(),"receiveOrgId",processDetailRequest.getReceiveOrgId());
-            taskService.setVariable(task.getId(),"sourceOrg",sourceOrg);
             taskService.setVariable(task.getId(),"pass",1);
         }
         else if(processDetailRequest.getSubmitType() == 2){
-            //  sourceOrg转成功后变量内更改
-            //map.put("pass",2);
-            //taskService.setVariable(task.getId(),"receiveOrgId",processDetailRequest.getReceiveOrgId());
             taskService.setVariable(task.getId(),"pass",2);
+        }
+        else if(processDetailRequest.getSubmitType() == 3){
+            taskService.setVariable(task.getId(),"pass",3);
         }
 
         //taskService.setVariables(task.getId(),map);
@@ -484,7 +484,7 @@ public class ComplaintService {
 //        }
         //Complaint complaint = complaintDao.getComplaintByComplaintId(processDetailRequest.getComplaintId());
         //驳回
-        if(processDetailRequest.getSubmitType() == 2){
+        if(processDetailRequest.getSubmitType() == 2 ){
             Integer detailMaxPkid = tsglAuditdetailDao.queryMaxPkId(processDetailRequest.getComplaintId());
             JkptTsglAuditdetail jkptTsglAuditdetail = new JkptTsglAuditdetail();
             jkptTsglAuditdetail.setPkid(detailMaxPkid);
@@ -539,7 +539,8 @@ public class ComplaintService {
                 receiveOrgDao.insert(processDetailRequest.getComplaintId(),receiverOrg);
             }
         }
-        else if(processDetailRequest.getSubmitType() == 1){
+        else if(processDetailRequest.getSubmitType() == 1 ||
+                processDetailRequest.getSubmitType() == 3){
             Integer detailMaxPkid = tsglAuditdetailDao.queryMaxPkId(processDetailRequest.getComplaintId());
             JkptTsglAuditdetail jkptTsglAuditdetail = new JkptTsglAuditdetail();
             jkptTsglAuditdetail.setPkid(detailMaxPkid);
@@ -595,7 +596,15 @@ public class ComplaintService {
                 receiveOrgDao.insert(processDetailRequest.getComplaintId(),receiverOrg);
             }
         }
+        if(processDetailRequest.getSubmitType() == 3){
+            JkptTsglAuditinfo auditinfo = new JkptTsglAuditinfo();
+            auditinfo.setPkid(processDetailRequest.getComplaintInfoId());
+            auditinfo.setRemark1("1");
+            auditinfoDao.updateByPrimaryKeySelective(auditinfo);
 
+            complaintDao.updateAcceptOrgId(processDetailRequest.getComplaintId(),
+                    userJwt.getOrgid());
+        }
         return null;
     }
 
@@ -639,10 +648,13 @@ public class ComplaintService {
     }
 
     public void test(String bussinessKey){
-        ProcessInstance instance = runtimeService.startProcessInstanceByKey("test");
+        ProcessInstance instance = runtimeService
+                .startProcessInstanceByKey("test",bussinessKey);
         Task task = workFlowService.queryTaskByInstanceId(instance.getProcessInstanceId());
-        String a = (String) taskService.getVariable(task.getId(),"myVar");
-        LOGGER.info("var={}",a);
+        Map<String,Object> map = new HashMap<>();
+        map.put("key","aaaa");
+        taskService.complete(task.getId(),map);
+        LOGGER.info("var={}",task);
     }
 
     public void test2(String bussinessKey) {
@@ -700,5 +712,64 @@ public class ComplaintService {
             }
         }
         return result;
+    }
+
+    /**
+     * 回访
+     * @param returnVisitRequest
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseResult doReturnVisit(SysOauth2Util.UserJwt userJwt,
+                                        ReturnVisitRequest returnVisitRequest) {
+        String suggest ="";
+        switch (returnVisitRequest.getSatisfactionStatus()){
+            case 1:
+                suggest = "投诉完成，用户满意";
+                break;
+            case 2:
+                suggest = "投诉完成，用户认可";
+                break;
+            case 3:
+                suggest = "用户未完成，用户不满意";
+                break;
+            case 4:
+                suggest = "无效投诉";
+                break;
+        }
+        if(returnVisitRequest.getSatisfactionStatus() == 1
+            || returnVisitRequest.getSatisfactionStatus() == 2){
+            complaintDao.updateComplaintReturnVisitInfo(returnVisitRequest.getComplaintId(),
+                    returnVisitRequest.getComplaintInfoId(),
+                    returnVisitRequest.getSatisfactionStatus(),
+                    userJwt.getOrgid());
+            complaintDao.updateComplaintInfoReturnVisitInfo(returnVisitRequest.getComplaintInfoId(),
+                    returnVisitRequest.getSatisfactionStatus(),
+                    userJwt.getOrgid(),
+                    userJwt.getUserId(),
+                    99,
+                    suggest);
+            Integer maxPkId = auditdetailDao.queryMaxPkId(returnVisitRequest.getComplaintId());
+            auditdetailDao.updateAuditDetail(returnVisitRequest.getSuggest(),
+                    suggest,
+                    userJwt.getUserId(),
+                    99,maxPkId);
+        }
+        String businessKey = returnVisitRequest.getComplaintId()+"";
+        Task task = workFlowService.queryTaskByBusinessKey(businessKey);
+//        Map<String,Object> map = new HashMap<>();
+//        map.put("statusType",returnVisitRequest.getSatisfactionStatus());
+//        map.put("data",returnVisitRequest);
+//        map.put("user",userJwt);
+        try{
+            taskService.setVariable(task.getId(),"statusType",returnVisitRequest.getSatisfactionStatus());
+            taskService.setVariable(task.getId(),"data",returnVisitRequest);
+            taskService.setVariable(task.getId(),"user",userJwt);
+            taskService.complete(task.getId());
+        }
+        catch (Exception e){
+            new Exception("工作流提交出错:"+e.getMessage());
+        }
+        return ResponseResult.SUCCESS();
     }
 }

@@ -5,7 +5,7 @@
            parameterType="com.boco.framework.model.workflow.JkptTsglAuditinfo">
       insert into JKPT_TSGL_AUDITINFO
       <selectKey resultType="java.lang.Integer" order="BEFORE" keyProperty="pkid">
-         select SEQ_TSGL_AUDITDETAIL_ID.Nextval from dual
+         select SEQ_TSGL_AUDITINFO_ID.Nextval from dual
       </selectKey>
       <trim prefix="(" suffix=")" suffixOverrides=",">
          pkid,

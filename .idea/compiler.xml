@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="framework-common" />
+        <module name="framework-model" />
+        <module name="framework-utils" />
+        <module name="sys-govern-center" />
+        <module name="sys-govern-gateway" />
+        <module name="sys-service-api" />
+        <module name="sys-service-ucenter" />
+        <module name="sys-service-ucenter-auth" />
+        <module name="sys-service-workflow" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="sys-service-user-manager" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="framework-common" options="-parameters" />
+      <module name="framework-model" options="-parameters" />
+      <module name="framework-utils" options="-parameters" />
+      <module name="sys-govern-center" options="-parameters" />
+      <module name="sys-govern-gateway" options="-parameters" />
+      <module name="sys-service-api" options="-parameters" />
+      <module name="sys-service-ucenter" options="-parameters" />
+      <module name="sys-service-ucenter-auth" options="-parameters" />
+      <module name="sys-service-user-manager" options="-parameters" />
+      <module name="sys-service-workflow" options="-parameters" />
+    </option>
+  </component>
+</project>

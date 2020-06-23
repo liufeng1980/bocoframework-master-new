@@ -1,6 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.boco.sys.service.workflow.dao.JkptTsglAuditdetailDao">
+   <resultMap id="BaseResultMap" type="com.boco.framework.model.workflow.JkptTsglAuditdetail">
+      <id column="PKID" jdbcType="INTEGER" property="pkid" />
+      <result column="FKID" jdbcType="INTEGER" property="fkid" />
+      <result column="STATUSINFO" jdbcType="VARCHAR" property="statusinfo" />
+      <result column="SENDUSERID" jdbcType="VARCHAR" property="senduserid" />
+      <result column="DEALTIME" jdbcType="TIMESTAMP" property="dealtime" />
+      <result column="PASSPATH" jdbcType="INTEGER" property="passpath" />
+      <result column="RECEIVEUSERID" jdbcType="VARCHAR" property="receiveuserid" />
+      <result column="REMARK_1" jdbcType="VARCHAR" property="remark1" />
+      <result column="REMARK_2" jdbcType="VARCHAR" property="remark2" />
+      <result column="REMARK_3" jdbcType="VARCHAR" property="remark3" />
+      <result column="REMARK_4" jdbcType="VARCHAR" property="remark4" />
+      <result column="REMARK_5" jdbcType="INTEGER" property="remark5" />
+      <result column="REMARK_6" jdbcType="INTEGER" property="remark6" />
+      <result column="REMARK_7" jdbcType="TIMESTAMP" property="remark7" />
+      <result column="REMARK_8" jdbcType="TIMESTAMP" property="remark8" />
+      <result column="RECEIVEORGID" jdbcType="VARCHAR" property="receiveorgid" />
+      <result column="STATUS" jdbcType="INTEGER" property="status" />
+      <result column="SENDORGID" jdbcType="VARCHAR" property="sendorgid" />
+      <result column="NEWSTATUS" jdbcType="INTEGER" property="newstatus" />
+      <result column="ISREJECT" jdbcType="VARCHAR" property="isreject" />
+      <result column="FREQUENCY" jdbcType="INTEGER" property="frequency" />
+      <result column="ISSHOW" jdbcType="VARCHAR" property="isshow" />
+      <result column="COMPLAINTID" jdbcType="INTEGER" property="complaintid" />
+   </resultMap>
+   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.boco.framework.model.workflow.JkptTsglAuditdetail">
+      <result column="SUGGESTION" jdbcType="CLOB" property="suggestion" />
+   </resultMap>
+   <sql id="Base_Column_List">
+    PKID, FKID, STATUSINFO, SENDUSERID, DEALTIME, PASSPATH, RECEIVEUSERID, REMARK_1,
+    REMARK_2, REMARK_3, REMARK_4, REMARK_5, REMARK_6, REMARK_7, REMARK_8, RECEIVEORGID,
+    "STATUS", SENDORGID, NEWSTATUS, ISREJECT, FREQUENCY, ISSHOW, COMPLAINTID
+  </sql>
+   <sql id="Blob_Column_List">
+    SUGGESTION
+  </sql>
    <insert id="insertSelective" parameterType="com.boco.framework.model.workflow.JkptTsglAuditdetail">
       <selectKey resultType="java.lang.Integer" order="BEFORE" keyProperty="pkid">
           select SEQ_TSGL_AUDITDETAIL_ID.Nextval from dual
@@ -232,4 +268,24 @@
     FROM JKPT_TSGL_AUDITDETAIL A
    WHERE A.COMPLAINTID =#{complaintId,jdbcType=INTEGER}
     </select>
+
+   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+      select
+      <include refid="Base_Column_List" />
+      ,
+      <include refid="Blob_Column_List" />
+      from JKPT_TSGL_AUDITDETAIL
+      where PKID = #{pkid,jdbcType=INTEGER}
+   </select>
+
+
+   <update id="updateAuditDetail">
+      UPDATE JKPT_TSGL_AUDITDETAIL A
+       SET A.DEALTIME      = SYSDATE,
+           A.SUGGESTION    = #{suggest,jdbcType=VARCHAR},
+           A.STATUSINFO    = #{statusInfo,jdbcType=VARCHAR},
+           A.RECEIVEUSERID = #{receiverUserId,jdbcType=VARCHAR},
+           A.NEWSTATUS     = #{newStatus,jdbcType=INTEGER}
+     WHERE PKID = #{detailId,jdbcType=INTEGER}
+   </update>
 </mapper>

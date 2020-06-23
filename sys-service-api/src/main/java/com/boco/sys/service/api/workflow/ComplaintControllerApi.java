@@ -3,10 +3,7 @@ package com.boco.sys.service.api.workflow;
 import com.boco.framework.model.response.ResponseResult;
 import com.boco.framework.model.workflow.JkptTsglOrgrelation;
 import com.boco.framework.model.workflow.UploadDocumentItem;
-import com.boco.framework.model.workflow.request.Complaint;
-import com.boco.framework.model.workflow.request.ComplaintPage;
-import com.boco.framework.model.workflow.request.DetailFormRequest;
-import com.boco.framework.model.workflow.request.ProcessDetailRequest;
+import com.boco.framework.model.workflow.request.*;
 import com.boco.framework.model.workflow.response.AddFormResponse;
 import com.boco.framework.model.workflow.response.ComplaintByTelResponse;
 import com.boco.framework.model.workflow.response.DetailFormResponse;
@@ -72,4 +69,7 @@ public interface ComplaintControllerApi {
 
     @ApiOperation("布署投诉")
     ResponseResult deployComplaint();
+
+    @ApiOperation("回访")
+    ResponseResult doReturnVisit(@RequestBody  ReturnVisitRequest returnVisitRequest);
 }

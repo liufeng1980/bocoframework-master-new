@@ -70,4 +70,32 @@ public interface ComplaintDao {
      */
     int updateCurrentOrgId(@Param("complaintId") Integer complaintId,
                            @Param("receiverOrgId") String receiverOrgId);
+
+    /**
+     * 更新受理机构
+     * @param acceptOrgid
+     * @return
+     */
+    int updateAcceptOrgId(@Param("complaintId") Integer complaintId,
+                          @Param("acceptOrgId") String acceptOrgid);
+
+    /**
+     * 更新回访信息
+     * @param complaintId
+     * @param complaintInfoId
+     * @return
+     */
+    int updateComplaintReturnVisitInfo(@Param("complaintId") Integer complaintId,
+                                       @Param("complaintInfoId") Integer complaintInfoId,
+                                       @Param("satisfactionStatus") Integer satisfactionStatus,
+                                       @Param("senderOrgId") String senderOrgId);
+
+    int updateComplaintInfoReturnVisitInfo(@Param("complaintInfoId") Integer complaintInfoId,
+                                           @Param("satisfactionStatus") Integer satisfactionStatus,
+                                           @Param("senderOrgId") String senderOrgId,
+                                           @Param("senderUserId")  String senderUserId,
+                                           @Param("currentStatus") Integer currentStatus,
+                                           @Param("suggest") String suggest);
+
+    int updateRecyclebin(@Param("complaintId") Integer complaintId);
 }

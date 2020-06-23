@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" addBOMForNewFiles="with NO BOM">
+    <file url="file://$PROJECT_DIR$/framework-common" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/framework-model" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/framework-parent" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/framework-utils" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sys-govern-center" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sys-govern-gateway" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sys-service-api" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sys-service-ucenter" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sys-service-ucenter-auth" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sys-service-user-manager" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sys-service-workflow" charset="UTF-8" />
+  </component>
+</project>

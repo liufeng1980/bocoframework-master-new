@@ -3,10 +3,7 @@ package com.boco.sys.service.workflow.controller;
 import com.boco.framework.model.response.ResponseResult;
 import com.boco.framework.model.workflow.JkptTsglOrgrelation;
 import com.boco.framework.model.workflow.UploadDocumentItem;
-import com.boco.framework.model.workflow.request.Complaint;
-import com.boco.framework.model.workflow.request.ComplaintPage;
-import com.boco.framework.model.workflow.request.DetailFormRequest;
-import com.boco.framework.model.workflow.request.ProcessDetailRequest;
+import com.boco.framework.model.workflow.request.*;
 import com.boco.framework.model.workflow.response.AddFormResponse;
 import com.boco.framework.model.workflow.response.ComplaintByTelResponse;
 import com.boco.framework.model.workflow.response.DetailFormResponse;
@@ -118,4 +115,12 @@ public class ComplaintController extends BaseController implements ComplaintCont
         return complaintService.deployComplaint();
     }
 
+    @PostMapping("/doReturnVisit")
+    @Override
+    public ResponseResult doReturnVisit( ReturnVisitRequest returnVisitRequest){
+        SysOauth2Util sysOauth2Util = new SysOauth2Util();
+        SysOauth2Util.UserJwt userJwt = sysOauth2Util.getUserJwtFromHeader(request);
+
+        return complaintService.doReturnVisit(userJwt,returnVisitRequest);
+    }
 }

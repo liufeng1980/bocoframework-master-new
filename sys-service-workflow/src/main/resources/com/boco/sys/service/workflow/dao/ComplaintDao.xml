@@ -257,4 +257,46 @@
         SET A.CURRENTORGID = #{receiverOrgId,jdbcType=VARCHAR}
         WHERE A.PKID = #{complaintId,jdbcType=INTEGER}
     </update>
+
+    <update id="updateAcceptOrgId">
+    UPDATE JKPT_TSGL_COMPLAINT A
+       SET A.Acceptorgid = #{acceptOrgId,jdbcType=VARCHAR}, accepttime = sysdate
+     WHERE PKID = #{complaintId,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateComplaintReturnVisitInfo">
+        UPDATE JKPT_TSGL_COMPLAINT A
+         SET ARCHIVETIME       = SYSDATE,
+             ISARCHIVE         = '1',
+             USEDDAYS          = FUNC_BASE_GETDAYS(A.CREATIONTIME, SYSDATE),
+             CURRENTORGID      = #{senderOrgId,jdbcType=VARCHAR},
+             DEALRESULT        = #{satisfactionStatus,jdbcType=INTEGER},
+             DEALRESULTCONTENT =
+             (select CURRENTSUGGESTION
+                from JKPT_TSGL_AUDITINFO
+               WHERE PKID = #{complaintInfoId,jdbcType=INTEGER})
+       WHERE PKID = #{complaintId,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateComplaintInfoReturnVisitInfo">
+        UPDATE JKPT_TSGL_AUDITINFO A
+         SET A.CURRENTSUGGESTION = #{suggest,jdbcType=VARCHAR},
+             ISARCHIVE           = '1',
+             ARCHIVETIME         = SYSDATE,
+             CURRENTSTATUS       = #{currentStatus,jdbcType=INTEGER},
+             DEALRESULT          = #{satisfactionStatus,jdbcType=INTEGER},
+             USEDDAYS            = FUNC_BASE_GETDAYS(A.CREATIONTIME, SYSDATE),
+             SENDUSERID          = #{senderUserId,jdbcType=VARCHAR},
+             A.SENDORGID         = #{senderOrgId,jdbcType=VARCHAR},
+             CURRENTSTATUSDESC   = #{satisfactionStatus,jdbcType=VARCHAR}
+       WHERE PKID = #{complaintInfoId,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateRecyclebin">
+       UPDATE JKPT_TSGL_COMPLAINT A
+         SET RECYCLEBINTIME = SYSDATE,
+             ISRECYCLEBIN   = '1',
+             USEDDAYS       = FUNC_BASE_GETDAYS(A.CREATIONTIME, SYSDATE)
+       WHERE PKID = #{complaintId,jdbcType=INTEGER}
+    </update>
 </mapper>
