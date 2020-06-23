@@ -44,4 +44,9 @@
              CURRENTSTATUSDESC   = #{statusDesc,jdbcType=VARCHAR}
        WHERE PKID = #{complaintInfoId,jdbcType=INTEGER}
     </update>
+
+    <update id="clearProcessedFlag">
+        UPDATE JKPT_TSGL_AUDITINFO t SET t.REMARK_1 = NULL
+        WHERE t.FKID = #{complaintId,jdbcType=INTEGER} AND t.ISCURRENT='1'
+    </update>
 </mapper>

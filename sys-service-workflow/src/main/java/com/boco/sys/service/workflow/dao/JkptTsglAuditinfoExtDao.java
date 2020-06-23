@@ -47,4 +47,11 @@ public interface JkptTsglAuditinfoExtDao {
                                         @Param("sendOrgId") String sendOrgId,
                                         @Param("suggest") String suggest,
                                         @Param("statusDesc") String statusDesc);
+
+    /**
+     * 清除已受理标志
+     * @param complaintId
+     * @return
+     */
+    int clearProcessedFlag(@Param("complaintId") Integer complaintId);
 }

@@ -33,6 +33,7 @@ public class RecyclebinProcessor implements Serializable {
 
     public void process(Execution exe) {
         ExecutionEntityImpl executionEntity = (ExecutionEntityImpl) exe;
+
         ReturnVisitRequest data
                 = executionEntity.getVariable("data", ReturnVisitRequest.class);
         SysOauth2Util.UserJwt userJwt

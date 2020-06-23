@@ -237,6 +237,7 @@ public class ComplaintService {
             map.put("inputUser", complaint.getCreationUserId());
             map.put("createOrgId", userJwt.getOrgid());
             map.put("complaintType", complaint.getComplaintType());
+            map.put("receiveOrgId",complaint.getCurrentOrgId());
             ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(PROCESS_NAME, bussinessKey, map);
             String instanceId = processInstance.getProcessInstanceId();
             LOGGER.info("查询流程实例Id={}",instanceId);
