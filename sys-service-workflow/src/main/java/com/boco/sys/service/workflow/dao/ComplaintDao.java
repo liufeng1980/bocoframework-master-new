@@ -98,4 +98,11 @@ public interface ComplaintDao {
                                            @Param("suggest") String suggest);
 
     int updateRecyclebin(@Param("complaintId") Integer complaintId);
+
+    /**
+     * 修改投诉管理基表
+     * @param complaint
+     * @return
+     */
+    int updateComplaint(Complaint complaint);
 }

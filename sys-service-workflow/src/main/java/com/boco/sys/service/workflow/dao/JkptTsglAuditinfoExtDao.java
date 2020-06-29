@@ -54,4 +54,13 @@ public interface JkptTsglAuditinfoExtDao {
      * @return
      */
     int clearProcessedFlag(@Param("complaintId") Integer complaintId);
+
+    /**
+     *获取流程审核主表最后一次审核信息
+     * @param complaintId
+     * @return
+     */
+    JkptTsglAuditinfo queryCurrentAuditInfoByComplaintId(@Param("complaintId") Integer complaintId);
+
+    int updateComplaintAudit(JkptTsglAuditinfo auditinfo);
 }

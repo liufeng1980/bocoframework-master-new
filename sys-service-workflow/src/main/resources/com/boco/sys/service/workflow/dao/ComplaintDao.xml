@@ -299,4 +299,59 @@
              USEDDAYS       = FUNC_BASE_GETDAYS(A.CREATIONTIME, SYSDATE)
        WHERE PKID = #{complaintId,jdbcType=INTEGER}
     </update>
+
+    <!-- 修改投诉管理基表 -->
+    <update id="updateComplaint" parameterType="com.boco.framework.model.workflow.request.Complaint" >
+	update jkpt_tsgl_complaint
+   set caller            = #{caller,jdbcType=VARCHAR},
+       telephone         = #{telephone,jdbcType=VARCHAR},
+       plateNumber       = #{plateNumber,jdbcType=VARCHAR},
+       cardType          = #{cardType,jdbcType=VARCHAR},
+       cardNumber        = #{cardNumber,jdbcType=VARCHAR},
+       tagType           = #{tagType,jdbcType=VARCHAR},
+       tagNumber         = #{tagNumber,jdbcType=VARCHAR},
+       complaintType     = #{complaintType,jdbcType=VARCHAR},
+       complaintLevel    = #{complaintLevel,jdbcType=VARCHAR},
+       complaintTarget   = #{complaintTarget,jdbcType=VARCHAR},
+       eventTime         = decode(#{eventTime,jdbcType=VARCHAR},
+                                  '',
+                                  null,
+                                  null,
+                                  null,
+                                  to_date(#{eventTime,jdbcType=VARCHAR},
+                                          'yyyy-MM-dd HH24:mi:ss')),
+       eventPlace        = #{eventPlace,jdbcType=VARCHAR},
+       eventDescribe     = #{eventDescribe,jdbcType=VARCHAR},
+       userAppeal        = #{userAppeal,jdbcType=VARCHAR},
+       currentOrgId      = #{currentOrgId,jdbcType=VARCHAR},
+       creationOrgId     = #{creationOrgId,jdbcType=VARCHAR},
+       creationUserId    = #{creationUserId,jdbcType=VARCHAR},
+       parentType        = #{parentType,jdbcType=VARCHAR},
+       etcBillNo         = #{etcBillNo,jdbcType=VARCHAR},
+       etcAcceptTime     = decode(#{etcAcceptTime,jdbcType=VARCHAR},
+                                  '',
+                                  null,
+                                  null,
+                                  null,
+                                  to_date(#{etcAcceptTime,jdbcType=VARCHAR},
+                                          'yyyy-MM-dd HH24:mi:ss')),
+       etcAcceptCount    = #{etcAcceptCount,jdbcType=DOUBLE},
+       etcAgency         = #{etcAgency,jdbcType=VARCHAR},
+       etcAcceptUser     = #{etcAcceptUser,jdbcType=VARCHAR},
+       etcUserName       = #{etcUserName,jdbcType=VARCHAR},
+       idType            = #{idType,jdbcType=VARCHAR},
+       idNo              = #{idNo,jdbcType=VARCHAR},
+       bankName          = #{bankName,jdbcType=VARCHAR},
+       bankAccount       = #{bankAccount,jdbcType=VARCHAR},
+       etcRechargeBillNo = #{etcRechargeBillNo,jdbcType=VARCHAR},
+       payType           = #{payType,jdbcType=VARCHAR},
+       etcEventTime      = decode(#{etcEventTime,jdbcType=VARCHAR},
+                                  '',
+                                  null,
+                                  null,
+                                  null,
+                                  to_date(#{etcEventTime,jdbcType=VARCHAR},
+                                          'yyyy-MM-dd HH24:mi:ss'))
+ where pkid = #{pkid,jdbcType=DOUBLE}
+	</update>
 </mapper>

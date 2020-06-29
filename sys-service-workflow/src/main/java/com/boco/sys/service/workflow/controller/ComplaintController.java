@@ -4,10 +4,7 @@ import com.boco.framework.model.response.ResponseResult;
 import com.boco.framework.model.workflow.JkptTsglOrgrelation;
 import com.boco.framework.model.workflow.UploadDocumentItem;
 import com.boco.framework.model.workflow.request.*;
-import com.boco.framework.model.workflow.response.AddFormResponse;
-import com.boco.framework.model.workflow.response.ComplaintByTelResponse;
-import com.boco.framework.model.workflow.response.DetailFormResponse;
-import com.boco.framework.model.workflow.response.JkptTsglOrgRelationExt;
+import com.boco.framework.model.workflow.response.*;
 import com.boco.framework.web.BaseController;
 import com.boco.sys.service.api.workflow.ComplaintControllerApi;
 import com.boco.sys.service.workflow.service.ComplaintService;
@@ -123,4 +120,20 @@ public class ComplaintController extends BaseController implements ComplaintCont
 
         return complaintService.doReturnVisit(userJwt,returnVisitRequest);
     }
+
+    @PostMapping("/reAdd")
+    @Override
+    public ResponseResult reAdd(Complaint complaint){
+        SysOauth2Util sysOauth2Util = new SysOauth2Util();
+        SysOauth2Util.UserJwt userJwt = sysOauth2Util.getUserJwtFromHeader(request);
+        return complaintService.reAdd(userJwt,complaint);
+    }
+
+    @GetMapping("/initReAddPage/{complaintId}")
+    @Override
+    public ResponseResult<ReAddFormResponse> initReAddPage(@PathVariable("complaintId") Integer complaintId) {
+        return complaintService.initReAddPage(complaintId);
+    }
+
+
 }

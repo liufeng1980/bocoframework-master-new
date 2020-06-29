@@ -49,4 +49,27 @@
         UPDATE JKPT_TSGL_AUDITINFO t SET t.REMARK_1 = NULL
         WHERE t.FKID = #{complaintId,jdbcType=INTEGER} AND t.ISCURRENT='1'
     </update>
+
+    <select id="queryCurrentAuditInfoByComplaintId" resultType="com.boco.framework.model.workflow.JkptTsglAuditinfo">
+      select pkid,frequency from jkpt_tsgl_auditinfo
+      where fkid=#{complaintId,jdbcType=INTEGER} and iscurrent=1
+    </select>
+
+    <update id="updateComplaintAudit" parameterType="com.boco.framework.model.workflow.JkptTsglAuditinfo" >
+	update jkpt_tsgl_auditinfo
+   set currentStatus     = 1,
+       currentSuggestion = '',
+       sendOrgId         = #{sendorgid},
+       isReject          = '0',
+       receiveOrgId      = #{receiveorgid},
+       passPath          = 1,
+       sendUserId        = #{senduserid},
+       remark_5          = nvl(remark_5, 0) + 1,
+       currentStatusDesc =
+       (select '投诉待' || orgname || '响应'
+          from jkpt_base_org
+         where orgid = #{receiveorgid}),
+       remark_1          = ''
+ where pkid = #{pkid}
+	</update>
 </mapper>

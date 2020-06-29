@@ -4,21 +4,14 @@
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <userTask id="usertask2" name="运营科已受理" activiti:candidateGroups="${yunyingke}"></userTask>
     <userTask id="usertask3" name="运营科审核其他投诉" activiti:candidateGroups="${yunyingke}" activiti:formKey="passtype=1&amp;dept=OperationDept"></userTask>
-    <endEvent id="endevent1" name="End"></endEvent>
-    <sequenceFlow id="flow7" sourceRef="usertask2" targetRef="endevent1"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow9" sourceRef="usertask3" targetRef="exclusivegateway3"></sequenceFlow>
     <userTask id="usertask5" name="高路公司审核其他投诉" activiti:candidateGroups="${gaolu}" activiti:formKey="passtype=1&amp;dept=GaoLuHearCenter"></userTask>
     <userTask id="usertask7" name="分公司审核" activiti:candidateGroups="${fengongsi}" activiti:formKey="passtype=1&amp;dept=SubCenter"></userTask>
     <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow15" sourceRef="usertask5" targetRef="exclusivegateway4"></sequenceFlow>
-    <userTask id="usertask8" name="再次流转或放回收站" activiti:candidateGroups="0110000"></userTask>
-    <endEvent id="endevent4" name="End"></endEvent>
-    <sequenceFlow id="flow19" sourceRef="usertask8" targetRef="endevent4"></sequenceFlow>
-    <userTask id="usertask9" name="回访" activiti:candidateGroups="0110000"></userTask>
-    <sequenceFlow id="flow20" name="处理完成" sourceRef="exclusivegateway3" targetRef="usertask9">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass == 5}]]></conditionExpression>
-    </sequenceFlow>
+    <userTask id="usertask8" name="再次流转或放回收站" activiti:candidateGroups="${reTransfer}"></userTask>
+    <userTask id="usertask9" name="回访" activiti:candidateGroups="${huifang}"></userTask>
     <userTask id="usertask10" name="分公司审核处理完成" activiti:candidateGroups="${fengongsi}" activiti:formKey="passtype=1&amp;dept=SubCenter"></userTask>
     <userTask id="usertask12" name="高路公司反馈" activiti:candidateGroups="${gaolu}" activiti:formKey="passtype=2&amp;dept=GaoLuHearCenter"></userTask>
     <userTask id="usertask13" name="分公司反馈其他投诉" activiti:candidateGroups="${fengongsi}" activiti:formKey="passtype=2&amp;dept=SubCenter"></userTask>
@@ -38,9 +31,6 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ statusType == 2 }]]></conditionExpression>
     </sequenceFlow>
     <userTask id="usertask15" name="呼叫中心已受理" activiti:assignee="${inputUser}" activiti:candidateGroups="0110000" activiti:formKey="passtype=1&amp;dept=CallCenter"></userTask>
-    <sequenceFlow id="flow42" name="呼叫中心发起" sourceRef="exclusivegateway1" targetRef="usertask15">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${createOrgId == '0110000'}]]></conditionExpression>
-    </sequenceFlow>
     <exclusiveGateway id="exclusivegateway10" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow43" sourceRef="usertask15" targetRef="exclusivegateway10"></sequenceFlow>
     <userTask id="usertask16" name="ETC发展部受理" activiti:candidateGroups="{etc}"></userTask>
@@ -48,7 +38,9 @@
       <script>def source = "CallCenter"
 execution.setVariable("sourceOrg", source)
 execution.setVariable("yunyingke", '0120000')
-execution.setVariable("isEtc", false)</script>
+execution.setVariable("isEtc", false)
+execution.setVariable("statusInfo1", "投诉重新创建")
+execution.setVariable("statusInfo2", "投诉待运营科受理")</script>
     </scriptTask>
     <sequenceFlow id="flow47" name="其他投诉" sourceRef="exclusivegateway10" targetRef="scripttask1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${complaintType == '101' || complaintType == '102' || complaintType == '103' || complaintType == '104' || complaintType == '105' || complaintType == '106'}]]></conditionExpression>
@@ -79,7 +71,13 @@ execution.setVariable("sourceOrg", source)
 execution.setVariable("statusInfo1", "驳回")
 execution.setVariable("statusInfo2", "投诉待呼叫中心受理")
 execution.setVariable("passPath", 1)
-execution.setVariable("status", 1)</script>
+execution.setVariable("status", 1)
+if(isCreatedByCallCenter == true){
+	execution.setVariable("reTransfer", "0110000")
+}
+else{
+       execution.setVariable("reTransfer", "0120000")
+}</script>
     </scriptTask>
     <sequenceFlow id="flow52" name="驳回" sourceRef="exclusivegateway3" targetRef="scripttask3">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass == 2 && sourceOrg == 'CallCenter'}]]></conditionExpression>
@@ -337,7 +335,12 @@ execution.setVariable("status", 2)</script>
       <script>def source = "OperationDept"
 execution.setVariable("sourceOrg", source)
 execution.setVariable("statusInfo1", "用户未完成，用户不满意")
-execution.setVariable("statusInfo2", "投诉待运营科受理")
+if(isEtc == true){
+	execution.setVariable("statusInfo2", "投诉待ETC发展部受理")
+}
+else{
+	execution.setVariable("statusInfo2", "投诉待运营科受理")
+}
 execution.setVariable("passPath", 1)
 execution.setVariable("status", 1)</script>
     </scriptTask>
@@ -353,7 +356,7 @@ execution.setVariable("status", 1)</script>
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ isEnd == 1 }]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow127" sourceRef="exclusivegateway19" targetRef="scripttask1">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ isEnd == 0  && isEnd == false }]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ isEnd == 0  && isEtc == false && isCreatedByCallCenter == true}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="servicetask2" name="回收站" activiti:expression="${ recyclebinProcessor.process(execution) }"></serviceTask>
     <sequenceFlow id="flow128" name="回收站" sourceRef="exclusivegateway9" targetRef="servicetask2">
@@ -366,6 +369,7 @@ execution.setVariable("status", 1)</script>
 execution.setVariable("sourceOrg", source)
 execution.setVariable("statusInfo1", "响应完成")
 execution.setVariable("statusInfo2", "投诉待呼叫中心受理")
+execution.setVariable("huifang", "0110000")
 execution.setVariable("passPath",2)
 execution.setVariable("status", 1)</script>
     </scriptTask>
@@ -394,7 +398,13 @@ execution.setVariable("sourceOrg", source)
 execution.setVariable("statusInfo1", "驳回")
 execution.setVariable("statusInfo2", "投诉待呼叫中心受理")
 execution.setVariable("passPath", 1)
-execution.setVariable("status", 1)</script>
+execution.setVariable("status", 1)
+if(isCreatedByCallCenter == true){
+	execution.setVariable("reTransfer", "0110000")
+}
+else{
+       execution.setVariable("reTransfer", "0120000")
+}</script>
     </scriptTask>
     <sequenceFlow id="flow136" name="驳回" sourceRef="exclusivegateway20" targetRef="scripttask27">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass == 2 }]]></conditionExpression>
@@ -403,8 +413,14 @@ execution.setVariable("status", 1)</script>
     <scriptTask id="scripttask28" name="设置" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>def source = "EtcDept"
 execution.setVariable("sourceOrg", source)
-execution.setVariable("statusInfo1", "响应完成")
-execution.setVariable("statusInfo2", "投诉待呼叫中心受理")
+if(isCreatedByCallCenter == true){
+	execution.setVariable("huifang", "0110000")
+}
+else{
+       execution.setVariable("huifang", "0120000")
+}
+execution.setVariable("statusInfo1", "响应完成") 
+execution.setVariable("statusInfo2", "投诉待运营科回访")
 execution.setVariable("passPath",2)
 execution.setVariable("status", 1)</script>
     </scriptTask>
@@ -414,13 +430,15 @@ execution.setVariable("status", 1)</script>
       <script>def source = "CallCenter"
 execution.setVariable("sourceOrg", source)
 execution.setVariable("etc", '0150000')
-execution.setVariable("isEtc", true)</script>
+execution.setVariable("isEtc", true)
+execution.setVariable("statusInfo1", "投诉重新创建")
+execution.setVariable("statusInfo2", "投诉待Etc发展部受理")</script>
     </scriptTask>
     <sequenceFlow id="flow140" sourceRef="exclusivegateway10" targetRef="scripttask29">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${complaintType == '201' || complaintType == '102' || complaintType == '203' || complaintType == '204' || complaintType == '205' }]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${complaintType == '201' || complaintType == '202' || complaintType == '203' || complaintType == '204' || complaintType == '205' }]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow142" sourceRef="exclusivegateway19" targetRef="scripttask29">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ isEnd == 0  && isEnd == false }]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ isEnd == 0  && isEtc == true }]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="servicetask3" name="消除已受理标记" activiti:expression="${ clearProcessedFlagService.process(execution) }"></serviceTask>
     <sequenceFlow id="flow143" sourceRef="scripttask29" targetRef="servicetask3"></sequenceFlow>
@@ -455,11 +473,12 @@ execution.setVariable("pass", 1)</script>
       <script>execution.setVariable("isEtc", true)</script>
     </scriptTask>
     <sequenceFlow id="flow156" sourceRef="exclusivegateway21" targetRef="scripttask31">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${complaintType == '201' || complaintType == '102' || complaintType == '203' || complaintType == '204' || complaintType == '205' }]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${complaintType == '201' || complaintType == '202' || complaintType == '203' || complaintType == '204' || complaintType == '205' }]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow157" sourceRef="scripttask31" targetRef="scripttask29"></sequenceFlow>
     <scriptTask id="scripttask32" name="设置" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script>execution.setVariable("yunyingke", '0120000')
+execution.setVariable("isCreatedByCallCenter", false)
 </script>
     </scriptTask>
     <sequenceFlow id="flow158" sourceRef="exclusivegateway1" targetRef="scripttask32">
@@ -468,20 +487,48 @@ execution.setVariable("pass", 1)</script>
     <sequenceFlow id="flow159" sourceRef="scripttask32" targetRef="usertask2"></sequenceFlow>
     <startEvent id="startevent1" name="Start"></startEvent>
     <sequenceFlow id="flow160" sourceRef="startevent1" targetRef="exclusivegateway1"></sequenceFlow>
+    <scriptTask id="scripttask34" name="设置" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>execution.setVariable("huifang", "0110000")</script>
+    </scriptTask>
+    <sequenceFlow id="flow161" sourceRef="scripttask34" targetRef="usertask9"></sequenceFlow>
+    <sequenceFlow id="flow162" name="受理完成" sourceRef="exclusivegateway3" targetRef="scripttask34">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ pass == 5}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway22" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow163" sourceRef="usertask8" targetRef="exclusivegateway22"></sequenceFlow>
+    <sequenceFlow id="flow164" sourceRef="exclusivegateway22" targetRef="servicetask2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ pass == 2 }]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow165" sourceRef="exclusivegateway22" targetRef="scripttask1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ pass == 1 && isEtc == false && isCreatedByCallCenter == true }]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow166" sourceRef="exclusivegateway22" targetRef="scripttask29">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ pass == 1 && isEtc == true }]]></conditionExpression>
+    </sequenceFlow>
+    <scriptTask id="scripttask35" name="设置" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>execution.setVariable("isCreatedByCallCenter", true)</script>
+    </scriptTask>
+    <sequenceFlow id="flow167" name="呼叫中心发起" sourceRef="exclusivegateway1" targetRef="scripttask35">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${createOrgId == '0110000'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow168" sourceRef="scripttask35" targetRef="usertask15"></sequenceFlow>
+    <sequenceFlow id="flow169" sourceRef="exclusivegateway22" targetRef="scripttask30">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ pass == 1 && isEtc == false && isCreatedByCallCenter == false}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow170" sourceRef="exclusivegateway19" targetRef="scripttask30">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ isEnd == 0  && isEtc == false && isCreatedByCallCenter == false}]]></conditionExpression>
+    </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_complaint_process">
     <bpmndi:BPMNPlane bpmnElement="complaint_process" id="BPMNPlane_complaint_process">
       <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
-        <omgdc:Bounds height="40.0" width="40.0" x="295.0" y="515.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="278.0" y="515.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="usertask2" id="BPMNShape_usertask2">
         <omgdc:Bounds height="55.0" width="105.0" x="300.0" y="690.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="usertask3" id="BPMNShape_usertask3">
         <omgdc:Bounds height="71.0" width="141.0" x="521.0" y="126.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
-        <omgdc:Bounds height="35.0" width="35.0" x="521.0" y="840.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
         <omgdc:Bounds height="40.0" width="40.0" x="686.0" y="141.0"></omgdc:Bounds>
@@ -498,11 +545,8 @@ execution.setVariable("pass", 1)</script>
       <bpmndi:BPMNShape bpmnElement="usertask8" id="BPMNShape_usertask8">
         <omgdc:Bounds height="55.0" width="181.0" x="161.0" y="121.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="endevent4" id="BPMNShape_endevent4">
-        <omgdc:Bounds height="35.0" width="35.0" x="81.0" y="131.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="usertask9" id="BPMNShape_usertask9">
-        <omgdc:Bounds height="55.0" width="105.0" x="231.0" y="1.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="238.0" y="31.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="usertask10" id="BPMNShape_usertask10">
         <omgdc:Bounds height="55.0" width="126.0" x="1212.0" y="391.0"></omgdc:Bounds>
@@ -691,12 +735,17 @@ execution.setVariable("pass", 1)</script>
         <omgdc:Bounds height="55.0" width="105.0" x="265.0" y="591.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
-        <omgdc:Bounds height="35.0" width="35.0" x="230.0" y="520.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="213.0" y="519.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
-        <omgdi:waypoint x="352.0" y="745.0"></omgdi:waypoint>
-        <omgdi:waypoint x="538.0" y="840.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape bpmnElement="scripttask34" id="BPMNShape_scripttask34">
+        <omgdc:Bounds height="55.0" width="105.0" x="474.0" y="22.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway22" id="BPMNShape_exclusivegateway22">
+        <omgdc:Bounds height="40.0" width="40.0" x="94.0" y="129.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask35" id="BPMNShape_scripttask35">
+        <omgdc:Bounds height="55.0" width="105.0" x="246.0" y="405.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
         <omgdi:waypoint x="662.0" y="161.0"></omgdi:waypoint>
         <omgdi:waypoint x="686.0" y="161.0"></omgdi:waypoint>
@@ -704,20 +753,6 @@ execution.setVariable("pass", 1)</script>
       <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
         <omgdi:waypoint x="926.0" y="167.0"></omgdi:waypoint>
         <omgdi:waypoint x="951.0" y="167.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
-        <omgdi:waypoint x="161.0" y="148.0"></omgdi:waypoint>
-        <omgdi:waypoint x="116.0" y="148.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
-        <omgdi:waypoint x="706.0" y="141.0"></omgdi:waypoint>
-        <omgdi:waypoint x="689.0" y="95.0"></omgdi:waypoint>
-        <omgdi:waypoint x="622.0" y="37.0"></omgdi:waypoint>
-        <omgdi:waypoint x="444.0" y="37.0"></omgdi:waypoint>
-        <omgdi:waypoint x="336.0" y="28.0"></omgdi:waypoint>
-        <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="48.0" x="568.0" y="23.0"></omgdc:Bounds>
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow29" id="BPMNEdge_flow29">
         <omgdi:waypoint x="1245.0" y="690.0"></omgdi:waypoint>
@@ -728,7 +763,7 @@ execution.setVariable("pass", 1)</script>
         <omgdi:waypoint x="368.0" y="426.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
-        <omgdi:waypoint x="231.0" y="28.0"></omgdi:waypoint>
+        <omgdi:waypoint x="238.0" y="58.0"></omgdi:waypoint>
         <omgdi:waypoint x="155.0" y="49.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow37" id="BPMNEdge_flow37">
@@ -743,13 +778,6 @@ execution.setVariable("pass", 1)</script>
         <omgdi:waypoint x="18.0" y="121.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
           <omgdc:Bounds height="14.0" width="24.0" x="65.0" y="105.0"></omgdc:Bounds>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow42" id="BPMNEdge_flow42">
-        <omgdi:waypoint x="315.0" y="515.0"></omgdi:waypoint>
-        <omgdi:waypoint x="298.0" y="269.0"></omgdi:waypoint>
-        <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="72.0" x="315.0" y="504.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow43" id="BPMNEdge_flow43">
@@ -772,7 +800,7 @@ execution.setVariable("pass", 1)</script>
         <omgdi:waypoint x="706.0" y="86.0"></omgdi:waypoint>
         <omgdi:waypoint x="723.0" y="86.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="100.0" x="708.0" y="122.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="60.0" x="708.0" y="122.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow50" id="BPMNEdge_flow50">
@@ -890,7 +918,7 @@ execution.setVariable("pass", 1)</script>
         <omgdi:waypoint x="706.0" y="241.0"></omgdi:waypoint>
         <omgdi:waypoint x="738.0" y="249.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="14.0" width="100.0" x="708.0" y="206.0"></omgdc:Bounds>
+          <omgdc:Bounds height="14.0" width="60.0" x="708.0" y="206.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow92" id="BPMNEdge_flow92">
@@ -1027,7 +1055,7 @@ execution.setVariable("pass", 1)</script>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow131" id="BPMNEdge_flow131">
         <omgdi:waypoint x="315.0" y="312.0"></omgdi:waypoint>
-        <omgdi:waypoint x="283.0" y="56.0"></omgdi:waypoint>
+        <omgdi:waypoint x="290.0" y="86.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow133" id="BPMNEdge_flow133">
         <omgdi:waypoint x="73.0" y="750.0"></omgdi:waypoint>
@@ -1058,7 +1086,7 @@ execution.setVariable("pass", 1)</script>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow139" id="BPMNEdge_flow139">
         <omgdi:waypoint x="230.0" y="804.0"></omgdi:waypoint>
-        <omgdi:waypoint x="283.0" y="56.0"></omgdi:waypoint>
+        <omgdi:waypoint x="290.0" y="86.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow140" id="BPMNEdge_flow140">
         <omgdi:waypoint x="417.0" y="261.0"></omgdi:waypoint>
@@ -1131,7 +1159,7 @@ execution.setVariable("pass", 1)</script>
         <omgdi:waypoint x="61.0" y="413.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow158" id="BPMNEdge_flow158">
-        <omgdi:waypoint x="315.0" y="555.0"></omgdi:waypoint>
+        <omgdi:waypoint x="298.0" y="555.0"></omgdi:waypoint>
         <omgdi:waypoint x="317.0" y="591.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow159" id="BPMNEdge_flow159">
@@ -1139,8 +1167,58 @@ execution.setVariable("pass", 1)</script>
         <omgdi:waypoint x="352.0" y="690.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow160" id="BPMNEdge_flow160">
-        <omgdi:waypoint x="265.0" y="537.0"></omgdi:waypoint>
-        <omgdi:waypoint x="295.0" y="535.0"></omgdi:waypoint>
+        <omgdi:waypoint x="248.0" y="536.0"></omgdi:waypoint>
+        <omgdi:waypoint x="278.0" y="535.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow161" id="BPMNEdge_flow161">
+        <omgdi:waypoint x="474.0" y="49.0"></omgdi:waypoint>
+        <omgdi:waypoint x="343.0" y="58.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow162" id="BPMNEdge_flow162">
+        <omgdi:waypoint x="706.0" y="141.0"></omgdi:waypoint>
+        <omgdi:waypoint x="662.0" y="49.0"></omgdi:waypoint>
+        <omgdi:waypoint x="579.0" y="49.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="48.0" x="622.0" y="26.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow163" id="BPMNEdge_flow163">
+        <omgdi:waypoint x="161.0" y="148.0"></omgdi:waypoint>
+        <omgdi:waypoint x="134.0" y="149.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow164" id="BPMNEdge_flow164">
+        <omgdi:waypoint x="114.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="73.0" y="241.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow165" id="BPMNEdge_flow165">
+        <omgdi:waypoint x="114.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="151.0" y="259.0"></omgdi:waypoint>
+        <omgdi:waypoint x="515.0" y="241.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow166" id="BPMNEdge_flow166">
+        <omgdi:waypoint x="114.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="61.0" y="358.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow167" id="BPMNEdge_flow167">
+        <omgdi:waypoint x="298.0" y="515.0"></omgdi:waypoint>
+        <omgdi:waypoint x="298.0" y="460.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="290.0" y="491.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow168" id="BPMNEdge_flow168">
+        <omgdi:waypoint x="298.0" y="405.0"></omgdi:waypoint>
+        <omgdi:waypoint x="298.0" y="269.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow169" id="BPMNEdge_flow169">
+        <omgdi:waypoint x="114.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="114.0" y="655.0"></omgdi:waypoint>
+        <omgdi:waypoint x="384.0" y="655.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow170" id="BPMNEdge_flow170">
+        <omgdi:waypoint x="160.0" y="452.0"></omgdi:waypoint>
+        <omgdi:waypoint x="161.0" y="628.0"></omgdi:waypoint>
+        <omgdi:waypoint x="384.0" y="655.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

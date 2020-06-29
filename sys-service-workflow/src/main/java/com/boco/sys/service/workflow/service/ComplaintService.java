@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.management.relation.RelationSupport;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -174,6 +175,59 @@ public class ComplaintService {
     }
 
     /**
+     * 重新流转初始化
+     * @param complaintId
+     * @return
+     */
+    public ResponseResult<ReAddFormResponse> initReAddPage(Integer complaintId){
+        ReAddFormResponse reAddFormResponse = new ReAddFormResponse();
+        List<JkptCommParamdic> parentParams
+                = paramdicDao.getParamDicList("ComplaintType", "0");
+        reAddFormResponse.setComplaintTypesParents(parentParams);
+
+        List<JkptCommParamdic> subParams
+                = paramdicDao.getParamDicList("ComplaintType", "");
+        reAddFormResponse.setComplaintTypesSubs(subParams);
+
+        List<JkptCommParamdic> complaintLevels
+                = paramdicDao.getParamDicListByGroupType("ComplaintLevel");
+        reAddFormResponse.setComplaintLevels(complaintLevels);
+
+        List<JkptCommParamdic> whetherOrNotParams
+                = paramdicDao.getParamDicListByGroupType("WhetherOrNot");
+        reAddFormResponse.setWeatherOrNot(whetherOrNotParams);
+
+        List<JkptCommParamdic> fileTypes
+                = paramdicDao.getParamDicListByGroupType("ComplaintFileType");
+        reAddFormResponse.setComplaintFileTypes(fileTypes);
+
+        List<JkptCommParamdic> idTypes
+                = paramdicDao.getParamDicListByGroupType("IdType");
+        reAddFormResponse.setIdTypes(idTypes);
+
+        List<JkptCommParamdic> payTypes
+                = paramdicDao.getParamDicListByGroupType("ComplaintPayType");
+        reAddFormResponse.setComplaintEtcPayTypes(payTypes);
+
+        List<JkptCommParamdic> etcAgencyParams
+                = paramdicDao.getParamDicListByGroupType("EtcAgency");
+        reAddFormResponse.setComplaintEtcPayTypes(etcAgencyParams);
+
+        if(complaintId > 0){
+            Complaint complaint = complaintDao.getComplaintByComplaintId(complaintId);
+            reAddFormResponse.setComplaint(complaint);
+        }
+        else{
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String now = formatter.format(new Date());
+            reAddFormResponse.setEventTime(now);
+            reAddFormResponse.setEtcAcceptTime(now);
+            reAddFormResponse.setEtcEventTime(now);
+        }
+        return ResponseResult.SUCCESS(reAddFormResponse);
+    }
+
+    /**
      * 按电话或车牌查询列表
      *
      * @param searchInput
@@ -293,6 +347,120 @@ public class ComplaintService {
             throw new Exception();
             //return ResponseResult.FAIL(e.getMessage());
         }
+    }
+
+    /**
+     * 再次流转
+     * @param userJwt
+     * @param complaint
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseResult reAdd(SysOauth2Util.UserJwt userJwt, Complaint complaint){
+        Task task = workFlowService.queryTaskByBusinessKey(complaint.getPkid() + "");
+        if(task == null){
+            return ResponseResult.FAIL("未查询到工作流任务 businessKey =" + complaint.getPkid());
+        }
+        taskService.setVariable(task.getId(),"pass",1);
+        taskService.complete(task.getId());
+        List<JkptCommParamdic> complaintTypes
+                = paramdicDao.getParamDicList("ComplaintType",
+                complaint.getComplaintType());
+        if(complaintTypes != null && complaintTypes.size() > 0){
+            complaint.setParentType(complaintTypes.get(0).getDicparentid());
+        }
+        String stepReceiveOrgId = complaint.getCurrentOrgId();
+        if(complaint.getParentType().equals("1")){
+            complaint.setEtcBillNo(null);
+            complaint.setEtcAcceptTime(null);
+            complaint.setEtcAcceptCount(null);
+            complaint.setEtcAgency(null);
+            complaint.setEtcAcceptUser(null);
+            complaint.setEtcUserName(null);
+            complaint.setIdType(null);
+            complaint.setIdNo(null);
+            complaint.setBankName(null);
+            complaint.setBankAccount(null);
+            complaint.setEtcRechargeBillNo(null);
+            complaint.setPayType(null);
+            complaint.setEtcEventTime(null);
+        }
+        else if(complaint.getParentType().equals("2")){
+            complaint.setEventTime(complaint.getEtcEventTime());
+            complaint.setComplaintTarget(null);
+            complaint.setEventPlace(null);
+            complaint.setIsCashPayment(null);
+            if (complaint.getComplaintType().equals("201")) {
+            } else {
+                complaint.setEtcUserName(null);
+                complaint.setIdType(null);
+                complaint.setIdNo(null);
+                complaint.setBankName(null);
+                complaint.setBankAccount(null);
+                complaint.setEtcRechargeBillNo(null);
+                complaint.setPayType(null);
+            }
+        }
+        complaintDao.updateComplaint(complaint);
+
+        Task task2 = workFlowService.queryTaskByBusinessKey(complaint.getPkid() + "");
+        if(task2 == null){
+            return ResponseResult.FAIL("未查询到工作流任务 businessKey =" + complaint.getPkid());
+        }
+        String statusInfo1Desc="";
+        String statusInfo2Desc="";
+        Object statusInfo1 = taskService.getVariable(task2.getId(), "statusInfo1");
+        statusInfo1Desc = statusInfo1 == null?"":statusInfo1.toString();
+        Object statusInfo2 = taskService.getVariable(task2.getId(), "statusInfo2");
+        statusInfo2Desc = statusInfo2 == null?"":statusInfo2.toString();
+
+        JkptTsglAuditinfo auditInfo
+                = auditinfoExtDao.queryCurrentAuditInfoByComplaintId(complaint.getPkid());
+        auditInfo.setSendorgid(complaint.getCreationOrgId());
+        auditInfo.setReceiveorgid(stepReceiveOrgId);
+        auditInfo.setSenduserid(complaint.getCreationUserId());
+
+        auditinfoExtDao.updateComplaintAudit(auditInfo);
+        auditInfo.setFkid(complaint.getPkid());
+        auditInfo.setReceiveorgid(complaint.getCreationOrgId());
+
+        JkptTsglAuditdetail detail = new JkptTsglAuditdetail();
+        detail.setComplaintid(auditInfo.getFkid());
+        detail.setFkid(auditInfo.getPkid());
+        detail.setSenduserid(auditInfo.getSenduserid());
+        detail.setReceiveorgid(auditInfo.getReceiveorgid());
+        detail.setSendorgid(auditInfo.getSendorgid());
+        detail.setFrequency(auditInfo.getFrequency());
+        detail.setReceiveuserid(userJwt.getUserId());
+
+        detail.setStatusinfo(statusInfo1Desc);
+        detail.setPasspath(1);
+        detail.setStatus(0);
+        detail.setIsreject("0");
+        detail.setIsshow("0");
+        tsglAuditdetailDao.insertSelective(detail);
+
+        JkptTsglAuditdetail auditdetail = new JkptTsglAuditdetail();
+        auditdetail.setFkid(auditInfo.getPkid());
+        auditdetail.setComplaintid(complaint.getPkid());
+        auditdetail.setStatusinfo(statusInfo2Desc);
+        auditdetail.setSenduserid(auditInfo.getSenduserid());
+        auditdetail.setPasspath(1);
+        auditdetail.setReceiveorgid(auditInfo.getReceiveorgid());
+        auditdetail.setStatus(1);
+        auditdetail.setSendorgid(auditInfo.getSendorgid());
+        auditdetail.setIsreject("0");
+        auditdetail.setIsshow("0");
+        auditdetail.setFrequency(auditInfo.getFrequency());
+        tsglAuditdetailDao.insertSelective(auditdetail);
+
+        int cnt = flowRejectDao.queryCount(complaint.getPkid(),complaint.getCurrentOrgId());
+        if(cnt == 0){
+            flowRejectDao.insert(complaint.getPkid(),complaint.getCurrentOrgId());
+        }
+
+
+        return ResponseResult.SUCCESS();
     }
 
 

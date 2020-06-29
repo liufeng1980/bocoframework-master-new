@@ -4,10 +4,7 @@ import com.boco.framework.model.response.ResponseResult;
 import com.boco.framework.model.workflow.JkptTsglOrgrelation;
 import com.boco.framework.model.workflow.UploadDocumentItem;
 import com.boco.framework.model.workflow.request.*;
-import com.boco.framework.model.workflow.response.AddFormResponse;
-import com.boco.framework.model.workflow.response.ComplaintByTelResponse;
-import com.boco.framework.model.workflow.response.DetailFormResponse;
-import com.boco.framework.model.workflow.response.JkptTsglOrgRelationExt;
+import com.boco.framework.model.workflow.response.*;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.*;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -72,4 +69,15 @@ public interface ComplaintControllerApi {
 
     @ApiOperation("回访")
     ResponseResult doReturnVisit(@RequestBody  ReturnVisitRequest returnVisitRequest);
+
+    @ApiOperation("重新流转")
+    ResponseResult reAdd(@RequestBody Complaint complaint);
+
+    @ApiOperation("重新流转界面初始化")
+    @ApiImplicitParams(
+            {
+                    @ApiImplicitParam(name = "complaintId", value = "投诉id", required = true, paramType = "path", dataType = "String")
+            }
+    )
+    ResponseResult<ReAddFormResponse> initReAddPage(Integer complaintId);
 }
