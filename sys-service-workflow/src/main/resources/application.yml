@@ -20,6 +20,16 @@ spring:
       timeBetweenEvictionRunsMillis: 60000 #配置间隔检测连接是否有效的时间（单位是毫秒）
       minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
       driver-class-name: oracle.jdbc.driver.OracleDriver
+      web-stat-filter:
+        enabled: true
+      stat-view-servlet:
+        enabled: true
+        # 设置白名单，不填则允许所有访问
+        allow:
+        url-pattern: /druid/*
+        # 控制台管理用户名和密码
+        login-username:
+        login-password:
   activiti:
     #自动更新数据库结构
     database-schema-update: true
@@ -53,3 +63,7 @@ ribbon:
 logging:
   level:
     com.boco.sys.service.workflow.dao: trace
+swagger:
+  show: true
+
+

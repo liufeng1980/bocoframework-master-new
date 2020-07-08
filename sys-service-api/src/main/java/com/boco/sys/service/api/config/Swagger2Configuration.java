@@ -1,5 +1,6 @@
 package com.boco.sys.service.api.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -19,6 +20,9 @@ import java.util.List;
 @Configuration
 @EnableSwagger2
 public class Swagger2Configuration {
+    @Value("${swagger.show}")
+    private boolean swaggerShow;
+
     @Bean
     public Docket createRestApi() {
         ParameterBuilder ticketPar = new ParameterBuilder();
@@ -28,6 +32,7 @@ public class Swagger2Configuration {
                 .required(false).build(); //header中的ticket参数非必填，传空也可以
         pars.add(ticketPar.build()); //根据每个方法名也知道当前方法在设置什么参数
         return new Docket(DocumentationType.SWAGGER_2)
+                .enable(swaggerShow)
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.boco"))

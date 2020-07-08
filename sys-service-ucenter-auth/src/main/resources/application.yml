@@ -30,6 +30,16 @@ spring:
       timeBetweenEvictionRunsMillis: 60000 #配置间隔检测连接是否有效的时间（单位是毫秒）
       minEvictableIdleTimeMillis: 300000  #连接在连接池的最小生存时间（毫秒）
       driver-class-name: oracle.jdbc.driver.OracleDriver
+      web-stat-filter:
+        enabled: true
+      stat-view-servlet:
+        enabled: true
+        # 设置白名单，不填则允许所有访问
+        allow:
+        url-pattern: /druid/*
+        # 控制台管理用户名和密码
+        login-username:
+        login-password:
 auth:
   tokenValiditySeconds: 7200  #token存储到redis的过期时间
   clientId: XcWebApp
@@ -58,6 +68,9 @@ ribbon:
   OkToRetryOnAllOperations: false  #对所有操作请求都进行重试，如果是get则可以，如果是post，put等操作没有实现幂等的情况下是很危险的,所以设置为false
   ConnectTimeout: 5000  #请求连接的超时时间
   ReadTimeout: 6000 #请求处理的超时时间
+
+swagger:
+  show: true
 
 
 

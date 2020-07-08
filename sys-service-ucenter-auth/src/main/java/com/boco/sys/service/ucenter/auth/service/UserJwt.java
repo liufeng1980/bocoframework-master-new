@@ -22,7 +22,7 @@ public class UserJwt extends User {
     /**
      * 用户姓名
      */
-    private String username;
+    //private String username;
 
     /**
      * 角色名称：关联角色表(JKPT_BASE_ROLE)

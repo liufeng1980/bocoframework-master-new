@@ -79,7 +79,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         userDetails.setOrgType(userext.getOrgType());
         userDetails.setOrgid(userext.getOrgid());
         userDetails.setUserkeyid(userext.getUserkeyid());
-        userDetails.setUsername(userext.getUsername());
+        //userDetails.setUsername(userext.getUsername());
+
         userDetails.setStatus(userext.getStatus());
         userDetails.setRoleid(userext.getRoleid());
        // userDetails.setUserId(userext.getUserid());

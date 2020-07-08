@@ -3,6 +3,7 @@ package com.boco.govern.gateway.server;
 import com.boco.utils.CookieUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,10 @@ import java.util.concurrent.TimeUnit;
 public class AuthService {
     @Autowired
     StringRedisTemplate stringRedisTemplate;
+
+    @Value("${auth.tokenValiditySeconds}")
+    private int tokenValiditySeconds;
+
 
 
     //从头取出jwt令牌
@@ -49,5 +54,10 @@ public class AuthService {
         String key = "user_token:"+access_token;
         Long expire = stringRedisTemplate.getExpire(key, TimeUnit.SECONDS);
         return expire;
+    }
+
+    public void extendExpire(String access_token,String token){
+        String key = "user_token:"+access_token;
+        stringRedisTemplate.boundValueOps(key).set(token,tokenValiditySeconds,TimeUnit.SECONDS);
     }
 }

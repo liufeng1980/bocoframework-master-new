@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 
 @Component
 public class LoginFilter extends ZuulFilter {
+
+    private static final Long MILLIS_MINUTE_TEN = 60 * 60 * 1000L;
     @Autowired
     AuthService authService;
     @Override
@@ -51,6 +53,9 @@ public class LoginFilter extends ZuulFilter {
         if(requestContext.getRequest().getRequestURI().contains("v2/api-docs")){
             return null;
         }
+        if(requestContext.getRequest().getRequestURI().contains("druid")){
+            return null;
+        }
         //得到request
         HttpServletRequest request = requestContext.getRequest();
         //得到response
@@ -76,6 +81,11 @@ public class LoginFilter extends ZuulFilter {
             access_denied();
             return null;
         }
+        else{
+            if(expire < MILLIS_MINUTE_TEN){
+                authService.extendExpire(tokenFromCookie,jwtFromHeader);
+            }
+        }
 
         return null;
     }
@@ -97,5 +107,4 @@ public class LoginFilter extends ZuulFilter {
         //转成json，设置contentType
         response.setContentType("application/json;charset=utf-8");
     }
-
 }
